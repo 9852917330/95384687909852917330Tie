@@ -1,7 +1,11 @@
-# Tiền của Điền v13 — GitHub Pages cache-free
+# Tiền của Điền v15
 
-Thứ tự tab: EUR → CAD → TRY → JPY.
+Bản bypass cache.
 
-Bản này inline toàn bộ CSS/JS trong index.html và tự gỡ service worker/cache cũ để tránh GitHub Pages/Brave hiển thị bản cũ.
+- CAD ở tab thứ 2.
+- Cặp CAD thứ 2 là **USDT / CAD** và nhận CAD.
+- Công thức: `CAD = USDT × (USDT/CAD)`.
+- Có nhãn `v15 · USDT/CAD FIX` ngay dưới tên công cụ để xác nhận đang mở đúng bản.
+- Không đăng ký service worker mới.
 
-Upload toàn bộ các file trong ZIP vào root repo. Quan trọng nhất là index.html mới.
+Để kiểm tra ngay trên GitHub Pages, mở: `.../v15.html`

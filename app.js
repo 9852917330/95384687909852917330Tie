@@ -12,6 +12,14 @@ const PAGES={
       {label:'EUR / VND',tag:'',unit:'VND',placeholder:'Ví dụ 30.700',receive:'VND',op:'multiply',vndThousands:true}
     ]
   },
+  cad:{
+    route:'VND → USDT → CAD → VND',capital:'VND',highlight:0,
+    rates:[
+      {label:'USDT / VND',tag:'P2P',unit:'VND',placeholder:'Ví dụ 26.300',receive:'USDT',op:'divide',vndThousands:true},
+      {label:'CAD / USDT',tag:'P2P',unit:'USDT',placeholder:'Ví dụ 0,7200',receive:'CAD',op:'divide'},
+      {label:'CAD / VND',tag:'',unit:'VND',placeholder:'Ví dụ 19.000',receive:'VND',op:'multiply',vndThousands:true}
+    ]
+  },
   try:{
     route:'TRY → EUR → USDT → TRY',capital:'TRY',highlight:3,
     rates:[

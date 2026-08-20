@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090b0c">
+  <meta name="color-scheme" content="dark">
+  <title>Tiền của Điền</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <div class="route" id="routeText">VND → USDT → EUR → VND</div>
+        <h1>Tiền của Điền</h1>
+      </div>
+      <button id="installBtn" class="install hidden">Cài app</button>
+    </header>
+
+    <nav class="tabs" aria-label="Loại vòng tiền">
+      <button class="tab active" data-page="eur">EUR</button>
+      <button class="tab" data-page="try">TRY</button>
+      <button class="tab" data-page="jpy">JPY</button>
+    </nav>
+
+    <section class="panel inputs">
+      <label class="wide">
+        <span>Vốn ban đầu</span>
+        <div class="field"><input id="capital" inputmode="numeric" value="100.000.000"><b id="capitalUnit">VND</b></div>
+      </label>
+
+      <label>
+        <span id="rate1Label">USDT / VND <small>P2P</small></span>
+        <div class="field"><input id="rate1" inputmode="decimal" placeholder="Ví dụ 26.300"><b id="rate1Unit">VND</b></div>
+        <em class="received" id="received1">Nhận: — USDT</em>
+      </label>
+
+      <label>
+        <span id="rate2Label">USDT / EUR <small>P2P</small></span>
+        <div class="field"><input id="rate2" inputmode="decimal" placeholder="Ví dụ 0,8600"><b id="rate2Unit">EUR</b></div>
+        <em class="received" id="received2">Nhận: — EUR</em>
+      </label>
+
+      <label class="wide">
+        <span id="rate3Label">EUR / VND</span>
+        <div class="field"><input id="rate3" inputmode="decimal" placeholder="Ví dụ 30.700"><b id="rate3Unit">VND</b></div>
+        <em class="received" id="received3">Nhận: — VND</em>
+      </label>
+    </section>
+
+    <section class="result-card">
+      <span>LÃI / LỖ</span>
+      <strong id="profit">—</strong>
+      <b id="roi">—</b>
+    </section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

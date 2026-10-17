@@ -1,143 +1,335 @@
-const $=id=>document.getElementById(id);
-const fmt0=new Intl.NumberFormat('vi-VN',{maximumFractionDigits:0});
-const fmt2=new Intl.NumberFormat('vi-VN',{minimumFractionDigits:0,maximumFractionDigits:2});
-const fmt4=new Intl.NumberFormat('vi-VN',{minimumFractionDigits:0,maximumFractionDigits:4});
+'use strict';
+const $ = id => document.getElementById(id);
+const fmt0 = new Intl.NumberFormat('vi-VN', {maximumFractionDigits: 0});
+const fmt2 = new Intl.NumberFormat('vi-VN', {maximumFractionDigits: 2});
+const fmt4 = new Intl.NumberFormat('vi-VN', {maximumFractionDigits: 4});
+const fmtRate = new Intl.NumberFormat('vi-VN', {useGrouping: false, maximumFractionDigits: 6});
+const memoryStorage = new Map();
+function stored(name) {
+  try { return localStorage.getItem(name) ?? memoryStorage.get(name) ?? null; }
+  catch (_) { return memoryStorage.get(name) ?? null; }
+}
+function remember(name, value) {
+  memoryStorage.set(name, String(value));
+  try { localStorage.setItem(name, String(value)); } catch (_) {}
+}
 
-const PAGES={
-  eur:{
-    route:'VND → USDT → EUR → VND',capital:'VND',highlight:1,
-    rates:[
-      {label:'USDT / VND',tag:'P2P',unit:'VND',placeholder:'Ví dụ 26.300',receive:'USDT',op:'divide',vndThousands:true},
-      {label:'USDT / EUR',tag:'P2P',unit:'EUR',placeholder:'Ví dụ 0,8600',receive:'EUR',op:'multiply'},
-      {label:'EUR / VND',tag:'',unit:'VND',placeholder:'Ví dụ 30.700',receive:'VND',op:'multiply',vndThousands:true}
+// A/B always means the amount of B for ONE unit of A.
+// Only explicit fiat pairs have an fx property. USDT is never fetched or
+// inferred from the provider's USD rate, except the disclosed RUB convention.
+const PAGES = {
+  cad: {
+    route: 'VND → USDT → CAD → VND', capital: 'VND', highlight: 0,
+    rates: [
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'USDT', op: 'divide', vndThousands: true},
+      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'},
+      {label: 'CAD / VND', unit: 'VND', placeholder: 'Ví dụ 19.000', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['CAD', 'VND']}
     ]
   },
-  cad:{
-    route:'VND → USDT → CAD → VND',capital:'VND',highlight:0,
-    rates:[
-      {label:'USDT / VND',tag:'P2P',unit:'VND',placeholder:'Ví dụ 26.300',receive:'USDT',op:'divide',vndThousands:true},
-      {label:'CAD / USDT',tag:'P2P',unit:'USDT',placeholder:'Ví dụ 0,7200',receive:'CAD',op:'divide'},
-      {label:'CAD / VND',tag:'',unit:'VND',placeholder:'Ví dụ 19.000',receive:'VND',op:'multiply',vndThousands:true}
+  try: {
+    route: 'TRY → EUR → USDT → TRY', capital: 'TRY', highlight: 3,
+    rates: [
+      {label: 'EUR / TRY', unit: 'TRY', placeholder: 'Ví dụ 48,50', receive: 'EUR', op: 'divide', fx: ['EUR', 'TRY']},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8550', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / TRY', tag: 'P2P', unit: 'TRY', placeholder: 'Ví dụ 41,50', receive: 'TRY', op: 'multiply'}
     ]
   },
-  try:{
-    route:'TRY → EUR → USDT → TRY',capital:'TRY',highlight:3,
-    rates:[
-      {label:'EUR / TRY',tag:'',unit:'TRY',placeholder:'Ví dụ 48,50',receive:'EUR',op:'divide'},
-      {label:'USDT / EUR',tag:'',unit:'EUR',placeholder:'Ví dụ 0,8550',receive:'USDT',op:'divide'},
-      {label:'USDT / TRY',tag:'',unit:'TRY',placeholder:'Ví dụ 41,50',receive:'TRY',op:'multiply'}
+  vnd: {
+    route: 'VND → USDT → EUR → VND', capital: 'VND', highlight: 1,
+    rates: [
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'USDT', op: 'divide', vndThousands: true},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8600', receive: 'EUR', op: 'multiply'},
+      {label: 'EUR / VND', unit: 'VND', placeholder: 'Ví dụ 30.700', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['EUR', 'VND']}
     ]
   },
-  jpy:{
-    route:'VND → JPY → USDT → VND',capital:'VND',highlight:2,
-    rates:[
-      {label:'JPY / VND',tag:'',unit:'VND',placeholder:'Ví dụ 165,50',receive:'JPY',op:'divide'},
-      {label:'USDT / JPY',tag:'',unit:'JPY',placeholder:'Ví dụ 155,00',receive:'USDT',op:'divide'},
-      {label:'USDT / VND',tag:'P2P',unit:'VND',placeholder:'Ví dụ 26.300',receive:'VND',op:'multiply',vndThousands:true}
+  jpy: {
+    route: 'VND → JPY → USDT → VND', capital: 'VND', highlight: 2,
+    rates: [
+      {label: 'JPY / VND', unit: 'VND', placeholder: 'Ví dụ 165,50', receive: 'JPY', op: 'divide', fx: ['JPY', 'VND']},
+      {label: 'USDT / JPY', tag: 'P2P', unit: 'JPY', placeholder: 'Ví dụ 155,00', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
+    ]
+  },
+  rub: {
+    route: 'VND → RUB → USDT → VND', capital: 'VND', highlight: 3,
+    rates: [
+      {label: 'RUB / VND', unit: 'VND', placeholder: 'Ví dụ 310,50', receive: 'RUB', op: 'divide', fx: ['RUB', 'VND']},
+      {label: 'USD / RUB', unit: 'RUB', placeholder: 'Ví dụ 83,50', receive: 'USDT', op: 'divide', fx: ['USD', 'RUB']},
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
     ]
   }
 };
 
-let page=localStorage.getItem('tiendien_page');
-if(!PAGES[page])page='eur';
+function migrateVndTab() {
+  const legacy = {capital: 'tiendien_capitalVnd', rate1: 'tiendien_usdtVnd', rate2: 'tiendien_usdtEur', rate3: 'tiendien_eurVnd'};
+  for (const id of ['capital', 'rate1', 'rate2', 'rate3']) {
+    const target = `tiendien_vnd_${id}`;
+    const value = stored(`tiendien_eur_${id}`) ?? stored(legacy[id]);
+    if (stored(target) === null && value !== null) remember(target, value);
+  }
+}
+migrateVndTab();
+let page = stored('tiendien_page');
+if (page === 'eur' || !PAGES[page]) page = 'vnd';
 
-function capitalNum(v){return Number(String(v??'').replace(/\D/g,''))||0}
-function rateNum(v,thousands=false){
-  let s=String(v??'').trim().replace(/\s/g,'');
-  if(!s)return 0;
-  if(s.includes(',')){
-    s=s.replace(/\./g,'').replace(',','.');
-  }else if(thousands&&/^\d{1,3}(?:\.\d{3})+$/.test(s)){
-    s=s.replace(/\./g,'');
+function capitalNum(value) {
+  const number = Number(String(value ?? '').replace(/\D/g, ''));
+  return Number.isFinite(number) ? number : 0;
+}
+function rateNum(value, thousands = false) {
+  let text = String(value ?? '').trim().replace(/\s/g, '');
+  if (!text) return 0;
+  if (text.includes(',')) text = text.replace(/\./g, '').replace(',', '.');
+  else if (thousands && /^\d{1,3}(?:\.\d{3})+$/.test(text)) text = text.replace(/\./g, '');
+  const number = Number(text);
+  return Number.isFinite(number) ? number : 0;
+}
+function formatCapital() {
+  const digits = $('capital').value.replace(/\D/g, '');
+  $('capital').value = digits ? fmt0.format(capitalNum(digits)) : '';
+}
+function money(value, unit) { return `${value >= 0 ? '+' : '−'}${fmt0.format(Math.abs(value))} ${unit}`; }
+function pct(value) { return `${value >= 0 ? '+' : ''}${fmt2.format(value)}%`; }
+function tone(element, value) {
+  element.classList.remove('good', 'bad', 'neutral');
+  element.classList.add(value > 0.01 ? 'good' : value < -0.01 ? 'bad' : 'neutral');
+}
+function formatReceived(value, unit) {
+  if (!(value > 0 && Number.isFinite(value))) return `Nhận: — ${unit}`;
+  return `Nhận: ${(unit === 'VND' || unit === 'TRY' ? fmt2 : fmt4).format(value)} ${unit}`;
+}
+function key(name) { return `tiendien_${page}_${name}`; }
+function save() {
+  remember(key('capital'), $('capital').value);
+  PAGES[page].rates.forEach((rate, index) => {
+    // Keep the last manually entered fiat quote separate from the live cache.
+    if (!fxEnabled || !rate.fx) remember(key(`rate${index + 1}`), $(`rate${index + 1}`).value);
+  });
+}
+
+const FX_URL = 'https://open.er-api.com/v6/latest/USD';
+const FX_CACHE_KEY = 'tiendien_fx_usd_v16';
+const FX_AUTO_KEY = 'tiendien_fx_auto_v16';
+const FX_ATTEMPT_KEY = 'tiendien_fx_attempt_v16';
+const FX_CODES = ['USD', 'EUR', 'CAD', 'TRY', 'JPY', 'VND', 'RUB'];
+let fxEnabled = stored(FX_AUTO_KEY) !== '0';
+let fxError = '';
+let fxBusy = false;
+let fxRequest = null;
+let fxLastAttempt = Number(stored(FX_ATTEMPT_KEY)) || 0;
+
+function validateFx(payload) {
+  if (!payload || payload.result !== 'success' || payload.base_code !== 'USD' || !payload.rates) throw new Error('Invalid FX data');
+  for (const code of FX_CODES) {
+    const rate = payload.rates[code];
+    if (typeof rate !== 'number' || !Number.isFinite(rate) || rate <= 0) throw new Error('Invalid FX rate');
   }
-  const n=Number(s);
-  return Number.isFinite(n)?n:0;
+  if (Math.abs(payload.rates.USD - 1) > 0.000001) throw new Error('Invalid FX base');
+  const last = payload.time_last_update_unix;
+  const next = payload.time_next_update_unix;
+  if (!Number.isFinite(last) || !Number.isFinite(next) || last <= 0 || next <= last || last * 1000 > Date.now() + 300000) throw new Error('Invalid FX timestamp');
+  return payload;
 }
-function formatCapital(){
-  const el=$('capital');
-  const digits=el.value.replace(/\D/g,'');
-  el.value=digits?fmt0.format(Number(digits)):'';
+function readFxCache() {
+  try {
+    const cached = JSON.parse(stored(FX_CACHE_KEY) || 'null');
+    if (!cached || !Number.isFinite(cached.fetchedAt) || cached.fetchedAt <= 0 || cached.fetchedAt > Date.now() + 300000) return null;
+    validateFx(cached.payload);
+    return cached;
+  } catch (_) { return null; }
 }
-function money(v,unit){return `${v>=0?'+':'−'}${fmt0.format(Math.abs(v))} ${unit}`}
-function pct(v){return `${v>=0?'+':''}${fmt2.format(v)}%`}
-function tone(el,v){el.classList.remove('good','bad','neutral');el.classList.add(v>0.01?'good':v<-0.01?'bad':'neutral')}
-function formatReceived(v,unit){
-  if(!(v>0))return `Nhận: — ${unit}`;
-  const fmt=(unit==='VND'||unit==='TRY')?fmt2:fmt4;
-  return `Nhận: ${fmt.format(v)} ${unit}`;
+let fxSnapshot = readFxCache();
+function fxIsDue() {
+  return !fxSnapshot || Date.now() >= fxSnapshot.payload.time_next_update_unix * 1000 + 60000;
 }
-function key(name){return `tiendien_${page}_${name}`}
-function save(){['capital','rate1','rate2','rate3'].forEach(id=>localStorage.setItem(key(id),$(id).value))}
-function migrateReciprocalRate2(){
-  if(page!=='try'&&page!=='jpy')return;
-  const flag=`tiendien_${page}_rate2_quote_v2`;
-  if(localStorage.getItem(flag)==='1')return;
-  const oldKey=`tiendien_${page}_rate2`;
-  const old=localStorage.getItem(oldKey);
-  if(old){
-    const n=rateNum(old,false);
-    if(n>0)localStorage.setItem(oldKey,String(1/n).replace('.',','));
+function crossRate(base, quote) {
+  if (!fxSnapshot) return 0;
+  return fxSnapshot.payload.rates[quote] / fxSnapshot.payload.rates[base];
+}
+function applyFxToPage() {
+  if (!fxEnabled || !fxSnapshot) return;
+  PAGES[page].rates.forEach((rate, index) => {
+    if (!rate.fx) return;
+    const value = crossRate(...rate.fx);
+    const input = $(`rate${index + 1}`);
+    input.value = fmtRate.format(value);
+    input.dataset.fxSource = 'api';
+  });
+}
+function renderFxStatus() {
+  $('fxAuto').setAttribute('aria-checked', String(fxEnabled));
+  $('fxAuto').classList.toggle('enabled', fxEnabled);
+  $('fxAutoText').textContent = `Tự động: ${fxEnabled ? 'Bật' : 'Tắt'}`;
+  $('fxRefresh').disabled = fxBusy || !fxEnabled;
+  $('fxRefresh').textContent = fxBusy ? 'Đang tải…' : 'Cập nhật';
+  $('fxStatus').classList.toggle('fx-warning', Boolean(fxError) || (fxEnabled && fxIsDue() && Boolean(fxSnapshot)));
+  if (!fxEnabled) {
+    $('fxStatus').textContent = 'Nhập tỷ giá thủ công. Các giá có USDT luôn nhập tay.';
+  } else if (fxSnapshot) {
+    const date = new Intl.DateTimeFormat('vi-VN', {dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh'}).format(new Date(fxSnapshot.payload.time_last_update_unix * 1000));
+    const prefix = fxError ? `${fxError} · đang dùng giá lưu lúc ` : fxIsDue() ? 'Giá cũ từ ' : 'Tỷ giá lúc ';
+    $('fxStatus').textContent = `${prefix}${date} (giờ VN). USDT nhập tay.`;
+  } else if (fxError) {
+    $('fxStatus').textContent = `${fxError}. Chưa có giá tự động; tắt Tự động để nhập tay.`;
+  } else {
+    $('fxStatus').textContent = fxBusy ? 'Đang lấy tỷ giá pháp định… USDT nhập tay.' : 'Chưa có tỷ giá tự động. USDT nhập tay.';
   }
-  localStorage.setItem(flag,'1');
+  PAGES[page].rates.forEach((rate, index) => {
+    const input = $(`rate${index + 1}`);
+    const automatic = Boolean(rate.fx && fxEnabled);
+    input.readOnly = automatic;
+    input.setAttribute('aria-readonly', String(automatic));
+    const tag = rate.fx ? (automatic ? (fxSnapshot ? 'TỰ ĐỘNG' : input.value ? 'ĐÃ LƯU' : 'CHỜ GIÁ') : 'NHẬP TAY') : rate.tag;
+    $(`rate${index + 1}Label`).innerHTML = `${rate.label}${tag ? ` <small>${tag}</small>` : ''}`;
+    input.closest('.field').classList.toggle('auto-rate', automatic);
+  });
+  $('resultNote').textContent = fxEnabled ? 'Ước tính theo tỷ giá tham khảo · chưa trừ phí' : 'Ước tính · chưa trừ phí giao dịch';
 }
-function restorePage(){
-  migrateReciprocalRate2();
-  const defaultCapital=page==='try'?'100.000':'100.000.000';
-  if(page==='eur'&&localStorage.getItem(key('capital'))===null){
-    const legacy={capital:'tiendien_capitalVnd',rate1:'tiendien_usdtVnd',rate2:'tiendien_usdtEur',rate3:'tiendien_eurVnd'};
-    Object.entries(legacy).forEach(([id,k])=>{const v=localStorage.getItem(k);if(v!==null)localStorage.setItem(key(id),v)});
-  }
-  $('capital').value=localStorage.getItem(key('capital'))??defaultCapital;
-  ['rate1','rate2','rate3'].forEach(id=>$(id).value=localStorage.getItem(key(id))??'');
+
+async function refreshFx({force = false} = {}) {
+  if (!fxEnabled) return;
+  if (fxRequest) return fxRequest;
+  if (!force && !fxIsDue()) { renderFxStatus(); return; }
+  const elapsed = Date.now() - fxLastAttempt;
+  // One scheduled attempt every five minutes when offline/unavailable; manual
+  // refresh is limited to once a minute. A fresh daily snapshot needs no poll.
+  if (elapsed >= 0 && elapsed < (force ? 60000 : 300000)) { renderFxStatus(); return; }
+  fxLastAttempt = Date.now();
+  remember(FX_ATTEMPT_KEY, fxLastAttempt);
+  fxBusy = true;
+  renderFxStatus();
+  fxRequest = (async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      const response = await fetch(FX_URL, {cache: 'no-store', credentials: 'omit', signal: controller.signal});
+      if (!response.ok) throw new Error(response.status === 429 ? 'RATE_LIMIT' : 'FETCH_FAILED');
+      const payload = validateFx(await response.json());
+      if (fxSnapshot && payload.time_last_update_unix < fxSnapshot.payload.time_last_update_unix) throw new Error('Older FX response');
+      fxSnapshot = {payload, fetchedAt: Date.now()};
+      remember(FX_CACHE_KEY, JSON.stringify(fxSnapshot));
+      fxError = '';
+      // The user may have switched tabs or disabled auto while fetch awaited.
+      if (fxEnabled) { applyFxToPage(); calculate(); }
+    } catch (error) {
+      fxError = error.message === 'RATE_LIMIT' ? 'Nguồn đang giới hạn truy cập' : 'Không tải được tỷ giá';
+    } finally {
+      clearTimeout(timeout);
+      fxBusy = false;
+      fxRequest = null;
+      renderFxStatus();
+    }
+  })();
+  return fxRequest;
+}
+
+function restorePage() {
+  $('capital').value = stored(key('capital')) ?? (page === 'try' ? '100.000' : '100.000.000');
+  ['rate1', 'rate2', 'rate3'].forEach(id => {
+    $(id).value = stored(key(id)) ?? '';
+    delete $(id).dataset.fxSource;
+  });
   formatCapital();
 }
-function renderPage(){
-  const cfg=PAGES[page];
-  $('routeText').textContent=cfg.route;
-  $('capitalUnit').textContent=cfg.capital;
-  cfg.rates.forEach((r,i)=>{
-    const n=i+1;
-    $( `rate${n}Label` ).innerHTML=`${r.label}${r.tag?` <small>${r.tag}</small>`:''}`;
-    $( `rate${n}Unit` ).textContent=r.unit;
-    $( `rate${n}` ).placeholder=r.placeholder;
-    $( `received${n}` ).textContent=`Nhận: — ${r.receive}`;
-    $( `rate${n}` ).closest('.field').classList.toggle('rate-highlight',n===cfg.highlight);
+function renderPage() {
+  const config = PAGES[page];
+  $('routeText').textContent = config.route;
+  $('capitalUnit').textContent = config.capital;
+  config.rates.forEach((rate, index) => {
+    const input = $(`rate${index + 1}`);
+    $(`rate${index + 1}Unit`).textContent = rate.unit;
+    input.placeholder = rate.placeholder;
+    input.setAttribute('aria-label', `${rate.label}: số ${rate.unit} cho một ${rate.label.split(' / ')[0]}`);
+    input.closest('.field').classList.toggle('rate-highlight', index + 1 === config.highlight);
   });
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
-  localStorage.setItem('tiendien_page',page);
+  document.querySelectorAll('.tab').forEach(button => {
+    const active = button.dataset.page === page;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  $('rubNote').classList.toggle('hidden', page !== 'rub');
+  remember('tiendien_page', page);
   restorePage();
+  applyFxToPage();
+  renderFxStatus();
   calculate();
 }
-function calculate(){
-  const cfg=PAGES[page];
-  const capital=capitalNum($('capital').value);
-  const rates=cfg.rates.map((r,i)=>rateNum($(`rate${i+1}`).value,!!r.vndThousands));
-  let amount=capital;
-  const received=[];
-  for(let i=0;i<3;i++){
-    const r=rates[i],op=cfg.rates[i].op;
-    if(!(amount>0&&r>0)){amount=0;received.push(0);continue}
-    amount=op==='divide'?amount/r:amount*r;
-    received.push(amount);
+function calculate() {
+  const config = PAGES[page];
+  const capital = capitalNum($('capital').value);
+  let amount = capital;
+  config.rates.forEach((rate, index) => {
+    const quote = rateNum($(`rate${index + 1}`).value, Boolean(rate.vndThousands));
+    amount = amount > 0 && quote > 0 ? (rate.op === 'divide' ? amount / quote : amount * quote) : 0;
+    if (!Number.isFinite(amount)) amount = 0;
+    $(`received${index + 1}`).textContent = formatReceived(amount, rate.receive);
+  });
+  if (!(capital > 0 && amount > 0)) {
+    $('profit').textContent = '—'; $('roi').textContent = '—';
+    $('profit').className = ''; $('roi').className = '';
+  } else {
+    const profit = amount - capital;
+    const roi = profit / capital * 100;
+    if (Number.isFinite(profit) && Number.isFinite(roi)) {
+      $('profit').textContent = money(profit, config.capital);
+      $('roi').textContent = pct(roi);
+      tone($('profit'), profit); tone($('roi'), profit);
+    } else {
+      $('profit').textContent = '—'; $('roi').textContent = '—';
+      $('profit').className = ''; $('roi').className = '';
+    }
   }
-  cfg.rates.forEach((r,i)=>$(`received${i+1}`).textContent=formatReceived(received[i],r.receive));
-  if(!(capital>0&&amount>0)){
-    $('profit').textContent='—';$('roi').textContent='—';
-    $('profit').className='';$('roi').className='';save();return;
-  }
-  const profit=amount-capital;
-  const roi=profit/capital*100;
-  $('profit').textContent=money(profit,cfg.capital);
-  $('roi').textContent=pct(roi);
-  tone($('profit'),profit);tone($('roi'),profit);
   save();
 }
 
-$('capital').addEventListener('input',()=>{formatCapital();calculate()});
-['rate1','rate2','rate3'].forEach(id=>$(id).addEventListener('input',calculate));
-document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{save();page=btn.dataset.page;renderPage()}));
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('installBtn').classList.remove('hidden')});
-$('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$('installBtn').classList.add('hidden')});
-if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js?v=12').catch(()=>{});
+$('capital').addEventListener('input', () => { formatCapital(); calculate(); });
+['rate1', 'rate2', 'rate3'].forEach(id => $(id).addEventListener('input', calculate));
+document.querySelectorAll('.tab').forEach(button => button.addEventListener('click', () => {
+  save(); page = button.dataset.page; renderPage(); refreshFx();
+}));
+$('fxAuto').addEventListener('click', () => {
+  save();
+  fxEnabled = !fxEnabled;
+  remember(FX_AUTO_KEY, fxEnabled ? '1' : '0');
+  if (fxEnabled) applyFxToPage();
+  else {
+    PAGES[page].rates.forEach((rate, index) => {
+      if (!rate.fx) return;
+      const manual = stored(key(`rate${index + 1}`));
+      if (manual !== null) $(`rate${index + 1}`).value = manual;
+      delete $(`rate${index + 1}`).dataset.fxSource;
+    });
+  }
+  renderFxStatus(); calculate();
+  if (fxEnabled) refreshFx();
+});
+$('fxRefresh').addEventListener('click', () => refreshFx({force: true}));
+window.addEventListener('online', () => refreshFx());
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshFx(); });
+setInterval(() => { if (!document.hidden) refreshFx(); }, 60000);
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault(); deferredPrompt = event; $('installBtn').classList.remove('hidden');
+});
+$('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt(); await deferredPrompt.userChoice;
+  deferredPrompt = null; $('installBtn').classList.add('hidden');
+});
+
+// Retire this app's old cache without touching other apps on the same origin.
+(async () => {
+  try {
+    if ('serviceWorker' in navigator) {
+      const scope = new URL('./', location.href).href;
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) if (registration.scope === scope) await registration.unregister();
+    }
+    if ('caches' in window) {
+      for (const name of await caches.keys()) if (/^(tien-cua-dien|tiendien)[-_]/.test(name)) await caches.delete(name);
+    }
+  } catch (_) {}
+})();
 renderPage();
+refreshFx();

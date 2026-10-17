@@ -15,6 +15,13 @@
 .field.auto-rate{border-style:dashed}.field.auto-rate input{cursor:default}
 .rub-note{grid-column:1/-1;margin:0 2px;color:var(--warn);font-size:10px;line-height:1.35}
 .result-note{margin:8px 0 0;font-size:9px;line-height:1.4;color:var(--muted);font-weight:500;letter-spacing:0}
+.result-note.benchmark-note{color:var(--warn);font-size:10px;font-weight:650;max-width:340px}
+.capital-panel{grid-column:1/-1;min-width:0}
+.capital-title{display:block;margin:0 2px 5px;color:#c7cdd0;font-size:11px;font-weight:780}
+.capital-converted{display:block;margin:5px 3px 0;font-size:10px;font-style:normal;font-weight:650;line-height:1.4;color:var(--muted)}
+.capital-presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:8px}
+.capital-preset{min-height:32px;padding:5px 2px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:#c7cdd0;font-size:11px;font-weight:800;cursor:pointer}
+.capital-preset.active{border-color:var(--accent);color:var(--accent);background:#11291e}
 .usd-reference{display:block;margin:4px 3px 0;font-size:10px;line-height:1.35;font-style:normal;font-weight:650;color:#73c6a3;overflow-wrap:anywhere}
 .usd-reference.stale{color:var(--warn)}
 .p2p-reference{display:block;margin:4px 3px 0;font-size:10px;line-height:1.35;font-style:normal;font-weight:750;color:#e9d493;overflow-wrap:anywhere}

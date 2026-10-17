@@ -78,11 +78,29 @@ if (stored('tiendien_cad_eur_usdt_rate3') === null && oldUsdtCad !== null) {
 }
 let page = stored('tiendien_page');
 if (page === 'eur' || !PAGES[page]) page = 'vnd';
+const USD_CAPITAL_KEY = 'tiendien_capital_usd_v21';
 
 function capitalNum(value) {
-  const number = Number(String(value ?? '').replace(/\D/g, ''));
-  return Number.isFinite(number) ? number : 0;
+  let text = String(value ?? '').trim().replace(/USD|\$|\s/gi, '');
+  if (!/^[0-9.,]+$/.test(text)) return 0;
+  if (text.includes(',') && text.includes('.')) {
+    if (text.lastIndexOf(',') > text.lastIndexOf('.')) {
+      if (!/^\d{1,3}(?:\.\d{3})*,\d{0,2}$/.test(text) && !/^\d+,\d{0,2}$/.test(text)) return 0;
+      text = text.replace(/\./g, '').replace(',', '.');
+    } else {
+      if (!/^\d{1,3}(?:,\d{3})*\.\d{0,2}$/.test(text) && !/^\d+\.\d{0,2}$/.test(text)) return 0;
+      text = text.replace(/,/g, '');
+    }
+  } else if (/^\d{1,3}(?:[.,]\d{3})+$/.test(text)) {
+    text = text.replace(/[.,]/g, '');
+  } else {
+    if (!/^\d+(?:[.,]\d{0,2})?$/.test(text)) return 0;
+    text = text.replace(',', '.');
+  }
+  const number = Number(text);
+  return Number.isFinite(number) && number >= 0 ? Math.round(number * 100) / 100 : 0;
 }
+function capitalUsd() { return capitalNum($('capital').value); }
 function rateNum(value, thousands = false) {
   let text = String(value ?? '').trim().replace(/\s/g, '');
   if (!text) return 0;
@@ -92,8 +110,7 @@ function rateNum(value, thousands = false) {
   return Number.isFinite(number) ? number : 0;
 }
 function formatCapital() {
-  const digits = $('capital').value.replace(/\D/g, '');
-  $('capital').value = digits ? fmt0.format(capitalNum(digits)) : '';
+  if ($('capital').value.trim()) $('capital').value = fmt2.format(capitalUsd());
 }
 function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'CAD' ? fmt2 : fmt0).format(Math.abs(value))} ${unit}`; }
 function pct(value) { return `${value >= 0 ? '+' : ''}${fmt2.format(value)}%`; }
@@ -107,7 +124,9 @@ function formatReceived(value, unit) {
 }
 function key(name) { return `tiendien_${page === 'cad' ? 'cad_eur_usdt' : page}_${name}`; }
 function save() {
-  remember(key('capital'), $('capital').value);
+  // One USD amount is shared across routes. Legacy per-route capital remains
+  // untouched: old VND/CAD/TRY values must never be reinterpreted as dollars.
+  remember(USD_CAPITAL_KEY, $('capital').value);
   PAGES[page].rates.forEach((rate, index) => {
     // Keep the last manually entered fiat quote separate from the live cache.
     if (!fxEnabled || (!rate.fx && !isUsdtRate(rate))) remember(key(`rate${index + 1}`), $(`rate${index + 1}`).value);
@@ -146,7 +165,6 @@ function readFxCache() {
   } catch (_) { return null; }
 }
 let fxSnapshot = readFxCache();
-const P2P_MIN_USD = 1000;
 const P2P_REFRESH_MS = 60000;
 const P2P_MAX_AGE_MS = 120000;
 const p2pEntries = new Map();
@@ -188,24 +206,33 @@ function readP2pEntry(rate) {
 }
 function selectP2p(rate, amountBefore) {
   const entry = readP2pEntry(rate);
-  const result = {entry, range: [], exact: [], best: null, reason: 'loading', stale: false};
+  const result = {entry, range: [], exact: [], best: null, benchmark: false, reason: 'loading', stale: false};
   if (!entry) { result.reason = p2pErrors.has(p2pKey(rate)) ? 'error' : 'loading'; return result; }
   result.stale = Date.now() - entry.fetchedAt > P2P_MAX_AGE_MS;
   if (!fxSnapshot) { result.reason = 'fx'; return result; }
+  const targetUsd = capitalUsd();
+  if (!(targetUsd > 0)) { result.reason = 'amount'; return result; }
   const fiatPerUsd = fxSnapshot.payload.rates[rate.unit];
   const side = p2pSide(rate);
   // The public Agent API expresses min/max/inventory in USDT, not fiat.
-  // Verify the 1,000 USD threshold using the fiat value at each ad's price.
-  const large = entry.ads.filter(ad => ad.maxQty * ad.price / fiatPerUsd >= P2P_MIN_USD && Math.max(ad.minQty, P2P_MIN_USD * fiatPerUsd / ad.price) <= ad.maxQty);
-  const exact = amountBefore > 0 ? large.filter(ad => {
+  // Every candidate must actually accommodate the selected USD amount.
+  // Never reuse the old fixed $1,000 benchmark for a larger capital input.
+  const candidates = entry.ads.filter(ad => {
+    const targetQuantity = targetUsd * fiatPerUsd / ad.price;
+    return targetQuantity + 1e-8 >= ad.minQty && targetQuantity <= ad.maxQty + 1e-8;
+  });
+  const exact = amountBefore > 0 ? candidates.filter(ad => {
     const quantity = side === 'BUY' ? amountBefore / ad.price : amountBefore;
-    return quantity >= ad.minQty && quantity <= ad.maxQty && quantity * ad.price / fiatPerUsd + 1e-8 >= P2P_MIN_USD;
+    return quantity + 1e-8 >= ad.minQty && quantity <= ad.maxQty + 1e-8;
   }) : [];
   result.exact = exact;
-  result.range = exact.length ? exact : large;
+  result.range = exact.length ? exact : candidates;
   result.range = [...result.range].sort((a, b) => a.price - b.price);
-  result.reason = !large.length ? 'empty' : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
-  if (exact.length && !result.stale) result.best = [...exact].sort((a, b) => side === 'BUY' ? a.price - b.price : b.price - a.price)[0];
+  result.reason = !candidates.length ? 'empty' : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
+  if (result.range.length && !result.stale) {
+    result.best = side === 'BUY' ? result.range[0] : result.range[result.range.length - 1];
+    result.benchmark = exact.length === 0;
+  }
   return result;
 }
 function renderP2pRow(rate, index, result) {
@@ -214,20 +241,21 @@ function renderP2pRow(rate, index, result) {
   line.classList.toggle('hidden', !active); meta.classList.toggle('hidden', !active);
   if (!active) { line.textContent = ''; meta.textContent = ''; return; }
   const action = p2pSide(rate) === 'BUY' ? 'mua USDT' : 'bán USDT';
-  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', empty: 'chưa có giá ≥1.000 USD', previous: 'chờ bước trước', capital: 'chưa khớp vốn', stale: 'giá cũ'};
+  const usdText = `$${fmt2.format(capitalUsd())}`;
+  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', amount: 'nhập vốn USD', empty: `chưa có quảng cáo khớp ${usdText}`, previous: 'chờ số tiền bước trước', capital: 'lượng tiền bước này khác vốn gốc', stale: 'giá cũ'};
   if (result.range.length) {
     const low = result.range[0].price, high = result.range[result.range.length - 1].price;
     line.textContent = `Binance ${action}: ${fmt4.format(low)}${high === low ? '' : `–${fmt4.format(high)}`}`;
     const time = new Intl.DateTimeFormat('vi-VN', {hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Ho_Chi_Minh'}).format(new Date(result.entry.fetchedAt));
-    const note = result.reason !== 'ok' ? ` · ${messages[result.reason]}` : '';
-    meta.textContent = `${result.range.length}/${result.entry.sampled} QC · ≥1.000 USD · ${time}${note}${p2pErrors.has(p2pKey(rate)) ? ' · lỗi tải lại' : ''}`;
+    const note = result.stale ? ' · giá cũ' : result.reason !== 'ok' ? ` · ${messages[result.reason]}` : '';
+    meta.textContent = `${result.range.length}/${result.entry.sampled} QC · vốn ${usdText} · ${time}${note}${p2pErrors.has(p2pKey(rate)) ? ' · lỗi tải lại' : ''}`;
   } else {
     line.textContent = `Binance ${action}: ${messages[result.reason] || 'chưa có giá'}`;
-    meta.textContent = 'Lệnh ≥1.000 USD · mọi phương thức';
+    meta.textContent = `Tìm theo vốn ${usdText} · mọi phương thức`;
   }
   line.classList.toggle('stale', result.stale || p2pErrors.has(p2pKey(rate)));
   const selected = result.best;
-  line.setAttribute('title', selected ? `Giá ${selected.price} ${rate.unit}/USDT; ${selected.merchant}; hoàn tất ${fmt2.format(selected.completion * 100)}%; hạn mức khả dụng ${fmt4.format(selected.minQty)}–${fmt4.format(selected.maxQty)} USDT; thanh toán: ${selected.methods.join(', ')}. Mẫu tối đa 20 quảng cáo, cần kiểm tra điều kiện trên Binance.` : 'Khoảng giá từ mẫu tối đa 20 quảng cáo. Khi chưa khớp vốn hoặc dữ liệu quá 2 phút, không tự điền giá.');
+  line.setAttribute('title', selected ? `Giá ${selected.price} ${rate.unit}/USDT; ${selected.merchant}; hoàn tất ${fmt2.format(selected.completion * 100)}%; hạn mức khả dụng ${fmt4.format(selected.minQty)}–${fmt4.format(selected.maxQty)} USDT; thanh toán: ${selected.methods.join(', ')}. Quảng cáo đáp ứng vốn gốc ${usdText}. ${result.benchmark ? 'Lượng tiền thực ở bước này đã thay đổi sau quy đổi, cần kiểm tra lại hạn mức khi đặt lệnh. ' : ''}Mẫu tối đa 20 quảng cáo.` : 'Chỉ sử dụng quảng cáo đáp ứng mức USD đã chọn; không lấy giá của mức vốn khác.');
 }
 async function refreshBinance({force = false} = {}) {
   const rates = PAGES[page].rates.filter(isUsdtRate);
@@ -324,13 +352,12 @@ function renderFxStatus() {
     const automatic = Boolean((rate.fx || isUsdtRate(rate)) && fxEnabled);
     input.readOnly = automatic;
     input.setAttribute('aria-readonly', String(automatic));
-    const tag = isUsdtRate(rate) ? `${p2pSide(rate) === 'BUY' ? 'MUA' : 'BÁN'} · ${fxEnabled ? 'BINANCE' : 'NHẬP TAY'}` : rate.fx ? (automatic ? (fxSnapshot ? 'TỰ ĐỘNG' : input.value ? 'ĐÃ LƯU' : 'CHỜ GIÁ') : 'NHẬP TAY') : rate.tag;
+    const tag = isUsdtRate(rate) ? `${p2pSide(rate) === 'BUY' ? 'MUA' : 'BÁN'} · ${fxEnabled ? input.dataset.p2pEstimate === '1' ? 'ƯỚC TÍNH' : 'BINANCE' : 'NHẬP TAY'}` : rate.fx ? (automatic ? (fxSnapshot ? 'TỰ ĐỘNG' : input.value ? 'ĐÃ LƯU' : 'CHỜ GIÁ') : 'NHẬP TAY') : rate.tag;
     $(`rate${index + 1}Label`).innerHTML = `${rate.label}${tag ? ` <small>${tag}</small>` : ''}`;
     input.closest('.field').classList.toggle('auto-rate', automatic);
   });
-  $('resultNote').textContent = fxEnabled ? 'Ước tính theo tỷ giá tham khảo · chưa trừ phí' : 'Ước tính · chưa trừ phí giao dịch';
   renderUsdReferences();
-  $('p2pStatus').textContent = 'Binance · lệnh ≥1.000 USD · tối đa 20 QC/cặp · mọi phương thức · tự cập nhật 60 giây';
+  $('p2pStatus').textContent = `Binance · lọc theo vốn $${fmt2.format(capitalUsd())} · tối đa 20 QC/cặp · tự cập nhật 60 giây`;
 }
 
 async function refreshFx({force = false} = {}) {
@@ -372,7 +399,7 @@ async function refreshFx({force = false} = {}) {
 }
 
 function restorePage() {
-  $('capital').value = stored(key('capital')) ?? (page === 'cad' ? '10.000' : page === 'try' ? '100.000' : '100.000.000');
+  $('capital').value = stored(USD_CAPITAL_KEY) ?? '1.000';
   ['rate1', 'rate2', 'rate3'].forEach(id => {
     $(id).value = stored(key(id)) ?? '';
     delete $(id).dataset.fxSource;
@@ -382,7 +409,7 @@ function restorePage() {
 function renderPage() {
   const config = PAGES[page];
   $('routeText').textContent = config.route;
-  $('capitalUnit').textContent = config.capital;
+  $('capitalUnit').textContent = 'USD';
   config.rates.forEach((rate, index) => {
     const input = $(`rate${index + 1}`);
     $(`rate${index + 1}Unit`).textContent = rate.unit;
@@ -404,13 +431,25 @@ function renderPage() {
 }
 function calculate() {
   const config = PAGES[page];
-  const capital = capitalNum($('capital').value);
+  const usd = capitalUsd();
+  const capital = fxSnapshot && usd > 0 ? usd * fxSnapshot.payload.rates[config.capital] : 0;
+  $('capitalConverted').textContent = capital > 0 ? `Vốn đầu vòng: ${fmt2.format(capital)} ${config.capital}` : usd > 0 ? `Vốn đầu vòng: chờ tỷ giá USD/${config.capital}` : 'Nhập vốn USD hoặc chọn nhanh bên dưới';
+  document.querySelectorAll('.capital-preset').forEach(button => {
+    const selected = Number(button.dataset.usd) === usd;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
   let amount = capital;
+  let benchmarkUsed = false;
   config.rates.forEach((rate, index) => {
     if (isUsdtRate(rate)) {
       const selected = selectP2p(rate, amount);
       if (fxEnabled) {
         $(`rate${index + 1}`).value = selected.best ? fmtRate.format(selected.best.price) : '';
+        $(`rate${index + 1}`).dataset.p2pEstimate = selected.benchmark ? '1' : '0';
+        if (selected.best && selected.benchmark && amount > 0) benchmarkUsed = true;
+      } else {
+        delete $(`rate${index + 1}`).dataset.p2pEstimate;
       }
       renderP2pRow(rate, index, selected);
     } else renderP2pRow(rate, index, null);
@@ -426,18 +465,33 @@ function calculate() {
     const profit = amount - capital;
     const roi = profit / capital * 100;
     if (Number.isFinite(profit) && Number.isFinite(roi)) {
-      $('profit').textContent = money(profit, config.capital);
-      $('roi').textContent = pct(roi);
+      $('profit').textContent = `${benchmarkUsed ? '≈ ' : ''}${money(profit, config.capital)}`;
+      $('roi').textContent = `${benchmarkUsed ? '≈ ' : ''}${pct(roi)}`;
       tone($('profit'), profit); tone($('roi'), profit);
     } else {
       $('profit').textContent = '—'; $('roi').textContent = '—';
       $('profit').className = ''; $('roi').className = '';
     }
   }
+  $('profitLabel').textContent = benchmarkUsed ? 'LÃI / LỖ ƯỚC TÍNH' : 'LÃI / LỖ';
+  $('resultNote').textContent = benchmarkUsed ? `Giá theo vốn $${fmt2.format(usd)}; lượng tiền giữa vòng đã thay đổi · chưa trừ phí` : fxEnabled ? 'Ước tính theo tỷ giá tham khảo · chưa trừ phí' : 'Ước tính · chưa trừ phí giao dịch';
+  $('resultNote').classList.toggle('benchmark-note', benchmarkUsed);
   save();
+  renderFxStatus();
 }
 
-$('capital').addEventListener('input', () => { formatCapital(); calculate(); });
+let capitalRefreshTimer = null;
+function capitalChanged() {
+  calculate();
+  clearTimeout(capitalRefreshTimer);
+  if (capitalUsd() > 0) capitalRefreshTimer = setTimeout(() => { refreshBinance({force: true}); }, 450);
+}
+$('capital').addEventListener('input', capitalChanged);
+$('capital').addEventListener('blur', () => { formatCapital(); calculate(); });
+document.querySelectorAll('.capital-preset').forEach(button => button.addEventListener('click', () => {
+  $('capital').value = fmt2.format(Number(button.dataset.usd));
+  capitalChanged();
+}));
 ['rate1', 'rate2', 'rate3'].forEach(id => $(id).addEventListener('input', calculate));
 document.querySelectorAll('.tab').forEach(button => button.addEventListener('click', () => {
   save(); page = button.dataset.page; renderPage(); refreshFx(); refreshBinance();

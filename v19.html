@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090b0c">
+  <meta name="color-scheme" content="dark">
+  <title>Tiền của Điền</title>
+  <link rel="manifest" href="./manifest.webmanifest?v=19">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#090b0c;--panel:#121517;--field:#0c0f11;--line:#252b2f;--text:#f4f7f8;--muted:#899197;--accent:#00e68a;--bad:#ff6670;--warn:#f2c14e}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);overflow:auto}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}button,input{font:inherit}.app{height:100dvh;min-height:530px;max-width:620px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));display:grid;grid-template-rows:auto auto auto minmax(115px,1fr);gap:10px;background:radial-gradient(circle at 90% -10%,rgba(0,230,138,.12),transparent 36%)}header{display:flex;justify-content:space-between;align-items:center;gap:12px}.route{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--accent)}h1{margin:2px 0 0;font-size:27px;line-height:1;letter-spacing:-.045em}.version{display:inline-block;margin-top:5px;font-size:9px;font-weight:900;letter-spacing:.08em;color:var(--accent);opacity:.8}.install{border:1px solid var(--line);background:var(--panel);color:var(--accent);font-size:11px;font-weight:850;padding:8px 11px;border-radius:10px;cursor:pointer}.hidden{display:none!important}.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.tab{height:34px;border:1px solid var(--line);border-radius:10px;background:#101315;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.04em;cursor:pointer}.tab.active{color:#07110d;background:var(--accent);border-color:var(--accent)}.panel{border:1px solid var(--line);background:linear-gradient(180deg,#15191b,var(--panel));border-radius:17px;padding:12px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.inputs label.wide{grid-column:1/-1}.inputs label>span{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px;font-weight:780;color:#c7cdd0;margin:0 2px 5px}.inputs small{font-size:8px;color:var(--muted);font-weight:900;letter-spacing:.07em}.field{height:45px;display:flex;align-items:center;border:1px solid var(--line);background:var(--field);border-radius:12px;overflow:hidden}.field:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,230,138,.08)}.field.rate-highlight{background:linear-gradient(180deg,rgba(0,230,138,.18),rgba(0,230,138,.08));border-color:rgba(0,230,138,.62);box-shadow:inset 0 0 0 1px rgba(0,230,138,.06)}.field.rate-highlight input{color:#f7fffb}.field.rate-highlight b{color:var(--accent)}.field input{width:100%;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--text);padding:0 11px;font-size:16px;font-weight:800}.field input::placeholder{color:#535b60;font-size:12px;font-weight:650}.field b{font-size:9px;color:var(--muted);padding:0 10px}.received{display:block;margin:5px 3px 0;color:var(--muted);font-size:10px;line-height:1.15;font-style:normal;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.result-card{min-height:0;border:1px solid #284439;background:linear-gradient(180deg,#142119,#101613);border-radius:18px;padding:14px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.result-card span{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.12em}.result-card strong{font-size:clamp(30px,8vw,46px);line-height:1.03;margin:8px 0 4px;letter-spacing:-.055em}.result-card b{font-size:16px}.good{color:var(--accent)!important}.bad{color:var(--bad)!important}.neutral{color:var(--warn)!important}
+@media(max-width:390px){.app{padding-left:10px;padding-right:10px;gap:8px}.panel{padding:10px}.inputs{gap:8px}.field{height:41px}.field input{font-size:14px}h1{font-size:23px}.received{font-size:9px;margin-top:4px}.result-card{padding:11px}.result-card strong{font-size:29px}.tab{height:31px;font-size:11px}}
+@media(max-height:690px){.app{gap:7px;padding-top:7px;padding-bottom:7px}.route{font-size:9px}h1{font-size:20px}.tabs{gap:5px}.tab{height:28px;font-size:10px}.panel{padding:8px}.inputs{gap:6px}.inputs label>span{font-size:9px;margin-bottom:3px}.field{height:33px}.field input{font-size:13px}.received{font-size:8px;margin-top:3px}.result-card{padding:8px}.result-card strong{font-size:26px;margin:4px 0 2px}}
+.fx-tools{grid-column:1/-1;border-top:1px solid var(--line);padding-top:9px;min-width:0}
+.fx-controls{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fx-toggle,.fx-refresh{min-height:32px;border:1px solid var(--line);border-radius:9px;background:var(--field);color:var(--muted);padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer}
+.fx-toggle{display:inline-flex;align-items:center;gap:7px}
+.fx-toggle.enabled{color:var(--accent);border-color:#285d46;background:#11251c}
+.fx-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor}
+.fx-refresh{color:var(--text)}.fx-refresh:disabled{opacity:.45;cursor:default}
+.fx-tools p{margin:5px 0 0;font-size:9px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}
+.fx-tools a{color:var(--muted);text-underline-offset:2px}
+.fx-tools .fx-warning{color:var(--warn)}
+.field.auto-rate{border-style:dashed}.field.auto-rate input{cursor:default}
+.rub-note{grid-column:1/-1;margin:0 2px;color:var(--warn);font-size:10px;line-height:1.35}
+.result-note{margin:8px 0 0;font-size:9px;line-height:1.4;color:var(--muted);font-weight:500;letter-spacing:0}
+.usd-reference{display:block;margin:4px 3px 0;font-size:10px;line-height:1.35;font-style:normal;font-weight:650;color:#73c6a3;overflow-wrap:anywhere}
+.usd-reference.stale{color:var(--warn)}
+.p2p-reference{display:block;margin:4px 3px 0;font-size:10px;line-height:1.35;font-style:normal;font-weight:750;color:#e9d493;overflow-wrap:anywhere}
+.p2p-reference.stale{color:var(--warn)}
+.p2p-meta{display:block;margin:2px 3px 0;font-size:8px;line-height:1.3;font-style:normal;color:var(--muted);overflow-wrap:anywhere}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:390px){.tabs{gap:5px}.fx-toggle,.fx-refresh{font-size:10px;padding:5px 8px}}
+@media(max-height:690px){.fx-tools{padding-top:6px}.fx-tools p{font-size:8px;margin-top:3px}.fx-toggle,.fx-refresh{min-height:28px;font-size:10px}.rub-note{font-size:9px}.result-note{font-size:8px;margin-top:5px}.usd-reference{font-size:9px;margin-top:3px}.p2p-reference{font-size:9px;margin-top:3px}.p2p-meta{font-size:8px}}
+
+</style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <div class="route" id="routeText">VND → USDT → EUR → VND</div>
+        <h1>Tiền của Điền</h1><span class="version">v19 · BINANCE P2P ≥1.000 USD</span>
+      </div>
+      <button id="installBtn" class="install hidden">Cài app</button>
+    </header>
+
+    <nav class="tabs" aria-label="Loại vòng tiền">
+      <button type="button" class="tab" data-page="cad">CAD</button>
+      <button type="button" class="tab" data-page="try">TRY</button>
+      <button type="button" class="tab active" data-page="vnd">VND</button>
+      <button type="button" class="tab" data-page="jpy">JPY</button>
+      <button type="button" class="tab" data-page="rub">RUB</button>
+    </nav>
+
+    <section class="panel inputs">
+      <label class="wide">
+        <span>Vốn ban đầu</span>
+        <div class="field"><input aria-label="Vốn ban đầu" id="capital" inputmode="numeric" value="100.000.000"><b id="capitalUnit">VND</b></div>
+      </label>
+
+      <label>
+        <span id="rate1Label">USDT / VND <small>P2P</small></span>
+        <div class="field"><input id="rate1" inputmode="decimal" placeholder="Ví dụ 26.300"><b id="rate1Unit">VND</b></div>
+        <em class="received" id="received1">Nhận: — USDT</em>
+        <em class="usd-reference hidden" id="usdReference1" aria-live="polite"></em>
+        <em class="p2p-reference hidden" id="p2pReference1" aria-live="polite"></em>
+        <em class="p2p-meta hidden" id="p2pMeta1"></em>
+      </label>
+
+      <label>
+        <span id="rate2Label">USDT / EUR <small>P2P</small></span>
+        <div class="field"><input id="rate2" inputmode="decimal" placeholder="Ví dụ 0,8600"><b id="rate2Unit">EUR</b></div>
+        <em class="received" id="received2">Nhận: — EUR</em>
+        <em class="usd-reference hidden" id="usdReference2" aria-live="polite"></em>
+        <em class="p2p-reference hidden" id="p2pReference2" aria-live="polite"></em>
+        <em class="p2p-meta hidden" id="p2pMeta2"></em>
+      </label>
+
+      <label class="wide">
+        <span id="rate3Label">EUR / VND</span>
+        <div class="field"><input id="rate3" inputmode="decimal" placeholder="Ví dụ 30.700"><b id="rate3Unit">VND</b></div>
+        <em class="received" id="received3">Nhận: — VND</em>
+        <em class="usd-reference hidden" id="usdReference3" aria-live="polite"></em>
+        <em class="p2p-reference hidden" id="p2pReference3" aria-live="polite"></em>
+        <em class="p2p-meta hidden" id="p2pMeta3"></em>
+      </label>
+
+      <p id="rubNote" class="rub-note hidden">Bước USD/RUB quy ước 1 USDT = 1 USD. Giá mua USDT thực tế có thể khác.</p>
+      <div class="fx-tools">
+        <div class="fx-controls">
+          <button type="button" id="fxAuto" class="fx-toggle enabled" role="switch" aria-checked="true" aria-label="Tự động điền tỷ giá pháp định và giá P2P Binance"><i class="fx-dot" aria-hidden="true"></i><span id="fxAutoText">Tự điền: Bật</span></button>
+          <button type="button" id="fxRefresh" class="fx-refresh">Cập nhật</button>
+        </div>
+        <p id="fxStatus" role="status" aria-live="polite">Đang lấy tỷ giá pháp định…</p>
+        <p id="p2pStatus" role="status" aria-live="polite">Binance · lệnh ≥1.000 USD · đang tải…</p>
+        <p><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">Rates By Exchange Rate API</a> · Tham khảo, cập nhật hằng ngày.</p>
+      </div>
+    </section>
+
+    <section class="result-card">
+      <span>LÃI / LỖ</span>
+      <strong id="profit">—</strong>
+      <b id="roi">—</b>
+      <p id="resultNote" class="result-note">Ước tính · chưa trừ phí giao dịch</p>
+    </section>
+  </main>
+
+
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const fmt0 = new Intl.NumberFormat('vi-VN', {maximumFractionDigits: 0});
+const fmt2 = new Intl.NumberFormat('vi-VN', {maximumFractionDigits: 2});
+const fmt4 = new Intl.NumberFormat('vi-VN', {maximumFractionDigits: 4});
+const fmtRate = new Intl.NumberFormat('vi-VN', {useGrouping: false, maximumFractionDigits: 6});
+const memoryStorage = new Map();
+function stored(name) {
+  try { return localStorage.getItem(name) ?? memoryStorage.get(name) ?? null; }
+  catch (_) { return memoryStorage.get(name) ?? null; }
+}
+function remember(name, value) {
+  memoryStorage.set(name, String(value));
+  try { localStorage.setItem(name, String(value)); } catch (_) {}
+}
+
+// A/B always means the amount of B for ONE unit of A.
+// Explicit fiat pairs use fx; USDT quotes come separately from Binance ads.
+// The legacy RUB USD/USDT convention remains disclosed on screen.
+const PAGES = {
+  cad: {
+    route: 'CAD → EUR → USDT → CAD', capital: 'CAD', highlight: 0,
+    rates: [
+      {label: 'EUR / CAD', unit: 'CAD', placeholder: 'Ví dụ 1,5500', receive: 'EUR', op: 'divide', fx: ['EUR', 'CAD']},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'}
+    ]
+  },
+  try: {
+    route: 'TRY → EUR → USDT → TRY', capital: 'TRY', highlight: 3,
+    rates: [
+      {label: 'EUR / TRY', unit: 'TRY', placeholder: 'Ví dụ 48,50', receive: 'EUR', op: 'divide', fx: ['EUR', 'TRY']},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8550', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / TRY', tag: 'P2P', unit: 'TRY', placeholder: 'Ví dụ 41,50', receive: 'TRY', op: 'multiply'}
+    ]
+  },
+  vnd: {
+    route: 'VND → USDT → EUR → VND', capital: 'VND', highlight: 1,
+    rates: [
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'USDT', op: 'divide', vndThousands: true},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8600', receive: 'EUR', op: 'multiply'},
+      {label: 'EUR / VND', unit: 'VND', placeholder: 'Ví dụ 30.700', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['EUR', 'VND']}
+    ]
+  },
+  jpy: {
+    route: 'VND → JPY → USDT → VND', capital: 'VND', highlight: 2,
+    rates: [
+      {label: 'JPY / VND', unit: 'VND', placeholder: 'Ví dụ 165,50', receive: 'JPY', op: 'divide', fx: ['JPY', 'VND']},
+      {label: 'USDT / JPY', tag: 'P2P', unit: 'JPY', placeholder: 'Ví dụ 155,00', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
+    ]
+  },
+  rub: {
+    route: 'VND → RUB → USDT → VND', capital: 'VND', highlight: 3,
+    rates: [
+      {label: 'RUB / VND', unit: 'VND', placeholder: 'Ví dụ 310,50', receive: 'RUB', op: 'divide', fx: ['RUB', 'VND']},
+      {label: 'USD / RUB', unit: 'RUB', placeholder: 'Ví dụ 83,50', receive: 'USDT', op: 'divide', fx: ['USD', 'RUB']},
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
+    ]
+  }
+};
+
+function migrateVndTab() {
+  const legacy = {capital: 'tiendien_capitalVnd', rate1: 'tiendien_usdtVnd', rate2: 'tiendien_usdtEur', rate3: 'tiendien_eurVnd'};
+  for (const id of ['capital', 'rate1', 'rate2', 'rate3']) {
+    const target = `tiendien_vnd_${id}`;
+    const value = stored(`tiendien_eur_${id}`) ?? stored(legacy[id]);
+    if (stored(target) === null && value !== null) remember(target, value);
+  }
+}
+migrateVndTab();
+// CAD now has a different starting currency and different quote positions.
+// Keep its new inputs separate so VND capital / unrelated old quotes cannot
+// acquire a new currency label. Only the unchanged USDT/CAD quote migrates.
+const oldUsdtCad = stored('tiendien_cad_rate2');
+if (stored('tiendien_cad_eur_usdt_rate3') === null && oldUsdtCad !== null) {
+  remember('tiendien_cad_eur_usdt_rate3', oldUsdtCad);
+}
+let page = stored('tiendien_page');
+if (page === 'eur' || !PAGES[page]) page = 'vnd';
+
+function capitalNum(value) {
+  const number = Number(String(value ?? '').replace(/\D/g, ''));
+  return Number.isFinite(number) ? number : 0;
+}
+function rateNum(value, thousands = false) {
+  let text = String(value ?? '').trim().replace(/\s/g, '');
+  if (!text) return 0;
+  if (text.includes(',')) text = text.replace(/\./g, '').replace(',', '.');
+  else if (thousands && /^\d{1,3}(?:\.\d{3})+$/.test(text)) text = text.replace(/\./g, '');
+  const number = Number(text);
+  return Number.isFinite(number) ? number : 0;
+}
+function formatCapital() {
+  const digits = $('capital').value.replace(/\D/g, '');
+  $('capital').value = digits ? fmt0.format(capitalNum(digits)) : '';
+}
+function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'CAD' ? fmt2 : fmt0).format(Math.abs(value))} ${unit}`; }
+function pct(value) { return `${value >= 0 ? '+' : ''}${fmt2.format(value)}%`; }
+function tone(element, value) {
+  element.classList.remove('good', 'bad', 'neutral');
+  element.classList.add(value > 0.01 ? 'good' : value < -0.01 ? 'bad' : 'neutral');
+}
+function formatReceived(value, unit) {
+  if (!(value > 0 && Number.isFinite(value))) return `Nhận: — ${unit}`;
+  return `Nhận: ${(unit === 'VND' || unit === 'TRY' ? fmt2 : fmt4).format(value)} ${unit}`;
+}
+function key(name) { return `tiendien_${page === 'cad' ? 'cad_eur_usdt' : page}_${name}`; }
+function save() {
+  remember(key('capital'), $('capital').value);
+  PAGES[page].rates.forEach((rate, index) => {
+    // Keep the last manually entered fiat quote separate from the live cache.
+    if (!fxEnabled || (!rate.fx && !isUsdtRate(rate))) remember(key(`rate${index + 1}`), $(`rate${index + 1}`).value);
+  });
+}
+
+const FX_URL = 'https://open.er-api.com/v6/latest/USD';
+const FX_CACHE_KEY = 'tiendien_fx_usd_v16';
+const FX_AUTO_KEY = 'tiendien_fx_auto_v16';
+const FX_ATTEMPT_KEY = 'tiendien_fx_attempt_v16';
+const FX_CODES = ['USD', 'EUR', 'CAD', 'TRY', 'JPY', 'VND', 'RUB'];
+let fxEnabled = stored(FX_AUTO_KEY) !== '0';
+let fxError = '';
+let fxBusy = false;
+let fxRequest = null;
+let fxLastAttempt = Number(stored(FX_ATTEMPT_KEY)) || 0;
+
+function validateFx(payload) {
+  if (!payload || payload.result !== 'success' || payload.base_code !== 'USD' || !payload.rates) throw new Error('Invalid FX data');
+  for (const code of FX_CODES) {
+    const rate = payload.rates[code];
+    if (typeof rate !== 'number' || !Number.isFinite(rate) || rate <= 0) throw new Error('Invalid FX rate');
+  }
+  if (Math.abs(payload.rates.USD - 1) > 0.000001) throw new Error('Invalid FX base');
+  const last = payload.time_last_update_unix;
+  const next = payload.time_next_update_unix;
+  if (!Number.isFinite(last) || !Number.isFinite(next) || last <= 0 || next <= last || last * 1000 > Date.now() + 300000) throw new Error('Invalid FX timestamp');
+  return payload;
+}
+function readFxCache() {
+  try {
+    const cached = JSON.parse(stored(FX_CACHE_KEY) || 'null');
+    if (!cached || !Number.isFinite(cached.fetchedAt) || cached.fetchedAt <= 0 || cached.fetchedAt > Date.now() + 300000) return null;
+    validateFx(cached.payload);
+    return cached;
+  } catch (_) { return null; }
+}
+let fxSnapshot = readFxCache();
+const P2P_MIN_USD = 1000;
+const P2P_REFRESH_MS = 60000;
+const P2P_MAX_AGE_MS = 120000;
+const p2pEntries = new Map();
+const p2pPending = new Map();
+const p2pErrors = new Map();
+const p2pAttempts = new Map();
+function isUsdtRate(rate) { return /^USDT\s*\/\s*[A-Z]{3}$/.test(rate.label); }
+function p2pSide(rate) { return rate.receive === 'USDT' ? 'BUY' : 'SELL'; }
+function p2pKey(rate) { return `${rate.unit}_${p2pSide(rate)}`; }
+function normalizeBinance(payload, fiat) {
+  if (!payload || payload.success !== true || payload.code !== '000000' || !Array.isArray(payload.data?.items)) throw new Error('INVALID_BINANCE');
+  const ads = [];
+  for (const item of payload.data.items.slice(0, 20)) {
+    if (item.fiat !== fiat || item.asset !== 'USDT') continue;
+    const price = Number(item.price), minQty = Number(item.minTransAmount);
+    const maxQty = Number(item.maxTransAmount), inventory = Number(item.tradableAmount);
+    if (![item.price, item.minTransAmount, item.maxTransAmount, item.tradableAmount].every(value => value !== null && value !== undefined && value !== '')) continue;
+    if (![price, minQty, maxQty, inventory].every(Number.isFinite) || price <= 0 || minQty < 0 || maxQty <= 0 || inventory <= 0 || maxQty < minQty) continue;
+    const capacity = Math.min(maxQty, inventory);
+    if (capacity < minQty) continue;
+    ads.push({price, minQty, maxQty: capacity, adNo: String(item.adNo ?? ''),
+      merchant: String(item.advertiser?.nickName ?? ''),
+      completion: Number(item.advertiser?.monthFinishRate) || 0,
+      methods: Array.isArray(item.tradeMethods) ? item.tradeMethods.map(String) : []});
+  }
+  return {ads, sampled: Math.min(20, payload.data.items.length)};
+}
+function readP2pEntry(rate) {
+  const name = p2pKey(rate);
+  if (p2pEntries.has(name)) return p2pEntries.get(name);
+  try {
+    const entry = JSON.parse(stored(`tiendien_binance_v19_${name}`) || 'null');
+    if (entry && entry.fiat === rate.unit && entry.side === p2pSide(rate) && Number.isFinite(entry.fetchedAt) && entry.fetchedAt > 0 && entry.fetchedAt <= Date.now() + 5000 && Array.isArray(entry.ads) && Number.isFinite(entry.sampled)) {
+      const valid = entry.ads.every(ad => [ad.price, ad.minQty, ad.maxQty].every(Number.isFinite) && ad.price > 0 && ad.minQty >= 0 && ad.maxQty >= ad.minQty && Array.isArray(ad.methods));
+      if (valid) { p2pEntries.set(name, entry); return entry; }
+    }
+  } catch (_) {}
+  return null;
+}
+function selectP2p(rate, amountBefore) {
+  const entry = readP2pEntry(rate);
+  const result = {entry, range: [], exact: [], best: null, reason: 'loading', stale: false};
+  if (!entry) { result.reason = p2pErrors.has(p2pKey(rate)) ? 'error' : 'loading'; return result; }
+  result.stale = Date.now() - entry.fetchedAt > P2P_MAX_AGE_MS;
+  if (!fxSnapshot) { result.reason = 'fx'; return result; }
+  const fiatPerUsd = fxSnapshot.payload.rates[rate.unit];
+  const side = p2pSide(rate);
+  // The public Agent API expresses min/max/inventory in USDT, not fiat.
+  // Verify the 1,000 USD threshold using the fiat value at each ad's price.
+  const large = entry.ads.filter(ad => ad.maxQty * ad.price / fiatPerUsd >= P2P_MIN_USD && Math.max(ad.minQty, P2P_MIN_USD * fiatPerUsd / ad.price) <= ad.maxQty);
+  const exact = amountBefore > 0 ? large.filter(ad => {
+    const quantity = side === 'BUY' ? amountBefore / ad.price : amountBefore;
+    return quantity >= ad.minQty && quantity <= ad.maxQty && quantity * ad.price / fiatPerUsd + 1e-8 >= P2P_MIN_USD;
+  }) : [];
+  result.exact = exact;
+  result.range = exact.length ? exact : large;
+  result.range = [...result.range].sort((a, b) => a.price - b.price);
+  result.reason = !large.length ? 'empty' : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
+  if (exact.length && !result.stale) result.best = [...exact].sort((a, b) => side === 'BUY' ? a.price - b.price : b.price - a.price)[0];
+  return result;
+}
+function renderP2pRow(rate, index, result) {
+  const line = $(`p2pReference${index + 1}`), meta = $(`p2pMeta${index + 1}`);
+  const active = isUsdtRate(rate);
+  line.classList.toggle('hidden', !active); meta.classList.toggle('hidden', !active);
+  if (!active) { line.textContent = ''; meta.textContent = ''; return; }
+  const action = p2pSide(rate) === 'BUY' ? 'mua USDT' : 'bán USDT';
+  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', empty: 'chưa có giá ≥1.000 USD', previous: 'chờ bước trước', capital: 'chưa khớp vốn', stale: 'giá cũ'};
+  if (result.range.length) {
+    const low = result.range[0].price, high = result.range[result.range.length - 1].price;
+    line.textContent = `Binance ${action}: ${fmt4.format(low)}${high === low ? '' : `–${fmt4.format(high)}`}`;
+    const time = new Intl.DateTimeFormat('vi-VN', {hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Ho_Chi_Minh'}).format(new Date(result.entry.fetchedAt));
+    const note = result.reason !== 'ok' ? ` · ${messages[result.reason]}` : '';
+    meta.textContent = `${result.range.length}/${result.entry.sampled} QC · ≥1.000 USD · ${time}${note}${p2pErrors.has(p2pKey(rate)) ? ' · lỗi tải lại' : ''}`;
+  } else {
+    line.textContent = `Binance ${action}: ${messages[result.reason] || 'chưa có giá'}`;
+    meta.textContent = 'Lệnh ≥1.000 USD · mọi phương thức';
+  }
+  line.classList.toggle('stale', result.stale || p2pErrors.has(p2pKey(rate)));
+  const selected = result.best;
+  line.setAttribute('title', selected ? `Giá ${selected.price} ${rate.unit}/USDT; ${selected.merchant}; hoàn tất ${fmt2.format(selected.completion * 100)}%; hạn mức khả dụng ${fmt4.format(selected.minQty)}–${fmt4.format(selected.maxQty)} USDT; thanh toán: ${selected.methods.join(', ')}. Mẫu tối đa 20 quảng cáo, cần kiểm tra điều kiện trên Binance.` : 'Khoảng giá từ mẫu tối đa 20 quảng cáo. Khi chưa khớp vốn hoặc dữ liệu quá 2 phút, không tự điền giá.');
+}
+async function refreshBinance({force = false} = {}) {
+  const rates = PAGES[page].rates.filter(isUsdtRate);
+  const tasks = rates.map(rate => {
+    const name = p2pKey(rate), entry = readP2pEntry(rate);
+    if (p2pPending.has(name)) return p2pPending.get(name);
+    if (!force && entry && Date.now() - entry.fetchedAt < P2P_REFRESH_MS) return Promise.resolve();
+    if (Date.now() - (p2pAttempts.get(name) || 0) < (force ? 10000 : P2P_REFRESH_MS)) return Promise.resolve();
+    p2pAttempts.set(name, Date.now());
+    const query = new URLSearchParams({fiat: rate.unit, asset: 'USDT', tradeType: p2pSide(rate), limit: '20'});
+    const request = (async () => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      try {
+        const response = await fetch(`https://www.binance.com/bapi/c2c/v1/public/c2c/agent/ad-list?${query}`, {credentials: 'omit', cache: 'no-store', signal: controller.signal});
+        if (!response.ok) throw new Error('BINANCE_HTTP');
+        const normalized = normalizeBinance(await response.json(), rate.unit);
+        const updated = {...normalized, fiat: rate.unit, side: p2pSide(rate), fetchedAt: Date.now()};
+        p2pEntries.set(name, updated); p2pErrors.delete(name);
+        remember(`tiendien_binance_v19_${name}`, JSON.stringify(updated));
+      } catch (_) { p2pErrors.set(name, true); }
+      finally { clearTimeout(timeout); }
+    })();
+    p2pPending.set(name, request);
+    return request.finally(() => { p2pPending.delete(name); calculate(); renderFxStatus(); });
+  });
+  renderFxStatus();
+  await Promise.allSettled(tasks);
+}
+function fxIsDue() {
+  return !fxSnapshot || Date.now() >= fxSnapshot.payload.time_next_update_unix * 1000 + 60000;
+}
+function crossRate(base, quote) {
+  if (!fxSnapshot) return 0;
+  return fxSnapshot.payload.rates[quote] / fxSnapshot.payload.rates[base];
+}
+function renderUsdReferences() {
+  // Benchmarks are read-only display data. Never substitute them for P2P
+  // USDT inputs or use them in the route's received/profit calculations.
+  PAGES[page].rates.forEach((rate, index) => {
+    const reference = $(`usdReference${index + 1}`);
+    const pair = rate.label.split('/').map(code => code.trim());
+    const hasUsdt = pair.includes('USDT');
+    reference.classList.toggle('hidden', !hasUsdt);
+    reference.classList.toggle('stale', hasUsdt && Boolean(fxSnapshot) && (fxIsDue() || Boolean(fxError)));
+    if (!hasUsdt) {
+      reference.textContent = '';
+      reference.setAttribute('title', '');
+      return;
+    }
+    const currency = pair.find(code => code !== 'USDT');
+    const label = `USD / ${currency}`;
+    if (fxSnapshot) {
+      const value = crossRate('USD', currency);
+      const qualifier = fxError ? ' · giá lưu' : fxIsDue() ? ' · giá cũ' : '';
+      reference.textContent = `${label}: ${fmt4.format(value)}${qualifier}`;
+      const timestamp = new Date(fxSnapshot.payload.time_last_update_unix * 1000).toLocaleString('vi-VN', {timeZone: 'Asia/Ho_Chi_Minh'});
+      reference.setAttribute('title', `1 USD = ${fmt4.format(value)} ${currency}. Tỷ giá tham khảo từ ExchangeRate-API, lúc ${timestamp} (giờ VN).`);
+    } else {
+      reference.textContent = `${label}: ${fxBusy ? 'đang tải…' : fxError ? 'chưa tải được' : '—'}`;
+      reference.setAttribute('title', 'Chưa có dữ liệu tỷ giá pháp định; không suy ra từ giá USDT nhập tay.');
+    }
+  });
+}
+function applyFxToPage() {
+  if (!fxEnabled || !fxSnapshot) return;
+  PAGES[page].rates.forEach((rate, index) => {
+    if (!rate.fx) return;
+    const value = crossRate(...rate.fx);
+    const input = $(`rate${index + 1}`);
+    input.value = fmtRate.format(value);
+    input.dataset.fxSource = 'api';
+  });
+}
+function renderFxStatus() {
+  $('fxAuto').setAttribute('aria-checked', String(fxEnabled));
+  $('fxAuto').classList.toggle('enabled', fxEnabled);
+  $('fxAutoText').textContent = `Tự điền: ${fxEnabled ? 'Bật' : 'Tắt'}`;
+  $('fxRefresh').disabled = fxBusy || p2pPending.size > 0;
+  $('fxRefresh').textContent = fxBusy || p2pPending.size > 0 ? 'Đang tải…' : 'Cập nhật';
+  $('fxStatus').classList.toggle('fx-warning', Boolean(fxError) || (fxIsDue() && Boolean(fxSnapshot)));
+  const manualPrefix = fxEnabled ? '' : 'Ô giá nhập tay. ';
+  if (fxSnapshot) {
+    const date = new Intl.DateTimeFormat('vi-VN', {dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh'}).format(new Date(fxSnapshot.payload.time_last_update_unix * 1000));
+    const prefix = fxError ? `${fxError} · đang dùng giá lưu lúc ` : fxIsDue() ? 'Giá cũ từ ' : 'Tỷ giá lúc ';
+    $('fxStatus').textContent = `${manualPrefix}${prefix}${date} (giờ VN).`;
+  } else if (fxError) {
+    $('fxStatus').textContent = `${manualPrefix}${fxError}. ${fxEnabled ? 'Tắt Tự điền để nhập tay.' : 'USD tham khảo chưa có dữ liệu.'}`;
+  } else {
+    $('fxStatus').textContent = manualPrefix + (fxBusy ? 'Đang lấy tỷ giá pháp định…' : 'Chưa có tỷ giá tự động.');
+  }
+  PAGES[page].rates.forEach((rate, index) => {
+    const input = $(`rate${index + 1}`);
+    const automatic = Boolean((rate.fx || isUsdtRate(rate)) && fxEnabled);
+    input.readOnly = automatic;
+    input.setAttribute('aria-readonly', String(automatic));
+    const tag = isUsdtRate(rate) ? `${p2pSide(rate) === 'BUY' ? 'MUA' : 'BÁN'} · ${fxEnabled ? 'BINANCE' : 'NHẬP TAY'}` : rate.fx ? (automatic ? (fxSnapshot ? 'TỰ ĐỘNG' : input.value ? 'ĐÃ LƯU' : 'CHỜ GIÁ') : 'NHẬP TAY') : rate.tag;
+    $(`rate${index + 1}Label`).innerHTML = `${rate.label}${tag ? ` <small>${tag}</small>` : ''}`;
+    input.closest('.field').classList.toggle('auto-rate', automatic);
+  });
+  $('resultNote').textContent = fxEnabled ? 'Ước tính theo tỷ giá tham khảo · chưa trừ phí' : 'Ước tính · chưa trừ phí giao dịch';
+  renderUsdReferences();
+  $('p2pStatus').textContent = 'Binance · lệnh ≥1.000 USD · tối đa 20 QC/cặp · mọi phương thức · tự cập nhật 60 giây';
+}
+
+async function refreshFx({force = false} = {}) {
+  // The feed also powers USD reference lines while auto-fill is disabled.
+  if (fxRequest) return fxRequest;
+  if (!force && !fxIsDue()) { renderFxStatus(); return; }
+  const elapsed = Date.now() - fxLastAttempt;
+  // One scheduled attempt every five minutes when offline/unavailable; manual
+  // refresh is limited to once a minute. A fresh daily snapshot needs no poll.
+  if (elapsed >= 0 && elapsed < (force ? 60000 : 300000)) { renderFxStatus(); return; }
+  fxLastAttempt = Date.now();
+  remember(FX_ATTEMPT_KEY, fxLastAttempt);
+  fxBusy = true;
+  renderFxStatus();
+  fxRequest = (async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      const response = await fetch(FX_URL, {cache: 'no-store', credentials: 'omit', signal: controller.signal});
+      if (!response.ok) throw new Error(response.status === 429 ? 'RATE_LIMIT' : 'FETCH_FAILED');
+      const payload = validateFx(await response.json());
+      if (fxSnapshot && payload.time_last_update_unix < fxSnapshot.payload.time_last_update_unix) throw new Error('Older FX response');
+      fxSnapshot = {payload, fetchedAt: Date.now()};
+      remember(FX_CACHE_KEY, JSON.stringify(fxSnapshot));
+      fxError = '';
+      // The user may have switched tabs or disabled auto while fetch awaited.
+      if (fxEnabled) applyFxToPage();
+      calculate();
+    } catch (error) {
+      fxError = error.message === 'RATE_LIMIT' ? 'Nguồn đang giới hạn truy cập' : 'Không tải được tỷ giá';
+    } finally {
+      clearTimeout(timeout);
+      fxBusy = false;
+      fxRequest = null;
+      renderFxStatus();
+    }
+  })();
+  return fxRequest;
+}
+
+function restorePage() {
+  $('capital').value = stored(key('capital')) ?? (page === 'cad' ? '10.000' : page === 'try' ? '100.000' : '100.000.000');
+  ['rate1', 'rate2', 'rate3'].forEach(id => {
+    $(id).value = stored(key(id)) ?? '';
+    delete $(id).dataset.fxSource;
+  });
+  formatCapital();
+}
+function renderPage() {
+  const config = PAGES[page];
+  $('routeText').textContent = config.route;
+  $('capitalUnit').textContent = config.capital;
+  config.rates.forEach((rate, index) => {
+    const input = $(`rate${index + 1}`);
+    $(`rate${index + 1}Unit`).textContent = rate.unit;
+    input.placeholder = rate.placeholder;
+    input.setAttribute('aria-label', `${rate.label}: số ${rate.unit} cho một ${rate.label.split(' / ')[0]}`);
+    input.closest('.field').classList.toggle('rate-highlight', index + 1 === config.highlight);
+  });
+  document.querySelectorAll('.tab').forEach(button => {
+    const active = button.dataset.page === page;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  $('rubNote').classList.toggle('hidden', page !== 'rub');
+  remember('tiendien_page', page);
+  restorePage();
+  applyFxToPage();
+  renderFxStatus();
+  calculate();
+}
+function calculate() {
+  const config = PAGES[page];
+  const capital = capitalNum($('capital').value);
+  let amount = capital;
+  config.rates.forEach((rate, index) => {
+    if (isUsdtRate(rate)) {
+      const selected = selectP2p(rate, amount);
+      if (fxEnabled) {
+        $(`rate${index + 1}`).value = selected.best ? fmtRate.format(selected.best.price) : '';
+      }
+      renderP2pRow(rate, index, selected);
+    } else renderP2pRow(rate, index, null);
+    const quote = rateNum($(`rate${index + 1}`).value, Boolean(rate.vndThousands));
+    amount = amount > 0 && quote > 0 ? (rate.op === 'divide' ? amount / quote : amount * quote) : 0;
+    if (!Number.isFinite(amount)) amount = 0;
+    $(`received${index + 1}`).textContent = formatReceived(amount, rate.receive);
+  });
+  if (!(capital > 0 && amount > 0)) {
+    $('profit').textContent = '—'; $('roi').textContent = '—';
+    $('profit').className = ''; $('roi').className = '';
+  } else {
+    const profit = amount - capital;
+    const roi = profit / capital * 100;
+    if (Number.isFinite(profit) && Number.isFinite(roi)) {
+      $('profit').textContent = money(profit, config.capital);
+      $('roi').textContent = pct(roi);
+      tone($('profit'), profit); tone($('roi'), profit);
+    } else {
+      $('profit').textContent = '—'; $('roi').textContent = '—';
+      $('profit').className = ''; $('roi').className = '';
+    }
+  }
+  save();
+}
+
+$('capital').addEventListener('input', () => { formatCapital(); calculate(); });
+['rate1', 'rate2', 'rate3'].forEach(id => $(id).addEventListener('input', calculate));
+document.querySelectorAll('.tab').forEach(button => button.addEventListener('click', () => {
+  save(); page = button.dataset.page; renderPage(); refreshFx(); refreshBinance();
+}));
+$('fxAuto').addEventListener('click', () => {
+  save();
+  fxEnabled = !fxEnabled;
+  remember(FX_AUTO_KEY, fxEnabled ? '1' : '0');
+  if (fxEnabled) applyFxToPage();
+  else {
+    PAGES[page].rates.forEach((rate, index) => {
+      if (!rate.fx && !isUsdtRate(rate)) return;
+      const manual = stored(key(`rate${index + 1}`));
+      if (manual !== null) $(`rate${index + 1}`).value = manual;
+      delete $(`rate${index + 1}`).dataset.fxSource;
+    });
+  }
+  renderFxStatus(); calculate();
+  if (fxEnabled) refreshFx();
+});
+$('fxRefresh').addEventListener('click', () => { refreshFx({force: true}); refreshBinance({force: true}); });
+window.addEventListener('online', () => { refreshFx(); refreshBinance(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { refreshFx(); refreshBinance(); } });
+setInterval(() => { if (!document.hidden) { refreshFx(); refreshBinance(); calculate(); } }, 60000);
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault(); deferredPrompt = event; $('installBtn').classList.remove('hidden');
+});
+$('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt(); await deferredPrompt.userChoice;
+  deferredPrompt = null; $('installBtn').classList.add('hidden');
+});
+
+// Retire this app's old cache without touching other apps on the same origin.
+(async () => {
+  try {
+    if ('serviceWorker' in navigator) {
+      const scope = new URL('./', location.href).href;
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) if (registration.scope === scope) await registration.unregister();
+    }
+    if ('caches' in window) {
+      for (const name of await caches.keys()) if (/^(tien-cua-dien|tiendien)[-_]/.test(name)) await caches.delete(name);
+    }
+  } catch (_) {}
+})();
+renderPage();
+refreshFx();
+refreshBinance();
+
+</script>
+</body>
+</html>

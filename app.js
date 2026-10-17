@@ -18,12 +18,12 @@ function remember(name, value) {
 // Explicit fiat pairs use fx; USDT quotes come separately from Binance ads.
 // The legacy RUB USD/USDT convention remains disclosed on screen.
 const PAGES = {
-  cad: {
-    route: 'CAD → EUR → USDT → CAD', capital: 'CAD', highlight: 0,
+  vnd: {
+    route: 'VND → USDT → EUR → VND', capital: 'VND', highlight: 1,
     rates: [
-      {label: 'EUR / CAD', unit: 'CAD', placeholder: 'Ví dụ 1,5500', receive: 'EUR', op: 'divide', fx: ['EUR', 'CAD']},
-      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
-      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'}
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'USDT', op: 'divide', vndThousands: true},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8600', receive: 'EUR', op: 'multiply'},
+      {label: 'EUR / VND', unit: 'VND', placeholder: 'Ví dụ 30.700', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['EUR', 'VND']}
     ]
   },
   try: {
@@ -34,20 +34,12 @@ const PAGES = {
       {label: 'USDT / TRY', tag: 'P2P', unit: 'TRY', placeholder: 'Ví dụ 41,50', receive: 'TRY', op: 'multiply'}
     ]
   },
-  vnd: {
-    route: 'VND → USDT → EUR → VND', capital: 'VND', highlight: 1,
+  czk: {
+    route: 'CZK → EUR → USDT → CZK', capital: 'CZK', highlight: 0,
     rates: [
-      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'USDT', op: 'divide', vndThousands: true},
-      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8600', receive: 'EUR', op: 'multiply'},
-      {label: 'EUR / VND', unit: 'VND', placeholder: 'Ví dụ 30.700', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['EUR', 'VND']}
-    ]
-  },
-  jpy: {
-    route: 'VND → JPY → USDT → VND', capital: 'VND', highlight: 2,
-    rates: [
-      {label: 'JPY / VND', unit: 'VND', placeholder: 'Ví dụ 165,50', receive: 'JPY', op: 'divide', fx: ['JPY', 'VND']},
-      {label: 'USDT / JPY', tag: 'P2P', unit: 'JPY', placeholder: 'Ví dụ 155,00', receive: 'USDT', op: 'divide'},
-      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
+      {label: 'EUR / CZK', unit: 'CZK', placeholder: 'Ví dụ 25,00', receive: 'EUR', op: 'divide', fx: ['EUR', 'CZK']},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / CZK', tag: 'P2P', unit: 'CZK', placeholder: 'Ví dụ 22,50', receive: 'CZK', op: 'multiply'}
     ]
   },
   rub: {
@@ -55,6 +47,22 @@ const PAGES = {
     rates: [
       {label: 'RUB / VND', unit: 'VND', placeholder: 'Ví dụ 310,50', receive: 'RUB', op: 'divide', fx: ['RUB', 'VND']},
       {label: 'USD / RUB', unit: 'RUB', placeholder: 'Ví dụ 83,50', receive: 'USDT', op: 'divide', fx: ['USD', 'RUB']},
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
+    ]
+  },
+  cad: {
+    route: 'CAD → EUR → USDT → CAD', capital: 'CAD', highlight: 0,
+    rates: [
+      {label: 'EUR / CAD', unit: 'CAD', placeholder: 'Ví dụ 1,5500', receive: 'EUR', op: 'divide', fx: ['EUR', 'CAD']},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'}
+    ]
+  },
+  jpy: {
+    route: 'VND → JPY → USDT → VND', capital: 'VND', highlight: 2,
+    rates: [
+      {label: 'JPY / VND', unit: 'VND', placeholder: 'Ví dụ 165,50', receive: 'JPY', op: 'divide', fx: ['JPY', 'VND']},
+      {label: 'USDT / JPY', tag: 'P2P', unit: 'JPY', placeholder: 'Ví dụ 155,00', receive: 'USDT', op: 'divide'},
       {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
     ]
   }
@@ -112,7 +120,7 @@ function rateNum(value, thousands = false) {
 function formatCapital() {
   if ($('capital').value.trim()) $('capital').value = fmt2.format(capitalUsd());
 }
-function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'CAD' ? fmt2 : fmt0).format(Math.abs(value))} ${unit}`; }
+function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'CAD' || unit === 'CZK' ? fmt2 : fmt0).format(Math.abs(value))} ${unit}`; }
 function pct(value) { return `${value >= 0 ? '+' : ''}${fmt2.format(value)}%`; }
 function tone(element, value) {
   element.classList.remove('good', 'bad', 'neutral');
@@ -137,7 +145,7 @@ const FX_URL = 'https://open.er-api.com/v6/latest/USD';
 const FX_CACHE_KEY = 'tiendien_fx_usd_v16';
 const FX_AUTO_KEY = 'tiendien_fx_auto_v16';
 const FX_ATTEMPT_KEY = 'tiendien_fx_attempt_v16';
-const FX_CODES = ['USD', 'EUR', 'CAD', 'TRY', 'JPY', 'VND', 'RUB'];
+const FX_CODES = ['USD', 'EUR', 'VND', 'TRY', 'CZK', 'RUB', 'CAD', 'JPY'];
 let fxEnabled = stored(FX_AUTO_KEY) !== '0';
 let fxError = '';
 let fxBusy = false;
@@ -167,6 +175,12 @@ function readFxCache() {
 let fxSnapshot = readFxCache();
 const P2P_REFRESH_MS = 60000;
 const P2P_MAX_AGE_MS = 120000;
+const P2P_MIN_COMPLETION = 0.85;
+const P2P_MIN_POSITIVE = 0.97;
+const P2P_QUALITY_POLICY = 1;
+// Old snapshots lack feedback/restriction fields. Fetch fresh data instead of
+// reusing prices whose merchants were never checked against this policy.
+const P2P_CACHE_PREFIX = 'tiendien_binance_v23_';
 const p2pEntries = new Map();
 const p2pPending = new Map();
 const p2pErrors = new Map();
@@ -174,11 +188,40 @@ const p2pAttempts = new Map();
 function isUsdtRate(rate) { return /^USDT\s*\/\s*[A-Z]{3}$/.test(rate.label); }
 function p2pSide(rate) { return rate.receive === 'USDT' ? 'BUY' : 'SELL'; }
 function p2pKey(rate) { return `${rate.unit}_${p2pSide(rate)}`; }
+function binanceRatio(value) {
+  if (typeof value !== 'number' && typeof value !== 'string') return null;
+  if (typeof value === 'string' && !value.trim()) return null;
+  const ratio = Number(value);
+  return Number.isFinite(ratio) && ratio >= 0 && ratio <= 1 ? ratio : null;
+}
+function binanceFlag(value) {
+  if (value === true || value === 1 || value === '1' || value === 'true') return true;
+  if (value === false || value === 0 || value === '0' || value === 'false') return false;
+  return null;
+}
+function reportedRestriction(item) {
+  // Honor explicit restriction/block/tradability flags when supplied. The
+  // anonymous Agent feed currently omits them; absence cannot establish
+  // whether this particular Binance account is eligible to trade an ad.
+  return [item, item.advertiser, item.adv].some(source => source && (
+    binanceFlag(source.isRestricted) === true || binanceFlag(source.isBlocked) === true ||
+    binanceFlag(source.isTradable) === false
+  ));
+}
+function passesMerchantPolicy(ad) {
+  return ad.restricted === false &&
+    Number.isFinite(ad.completion) && ad.completion >= P2P_MIN_COMPLETION && ad.completion <= 1 &&
+    Number.isFinite(ad.positive) && ad.positive >= P2P_MIN_POSITIVE && ad.positive <= 1;
+}
 function normalizeBinance(payload, fiat) {
   if (!payload || payload.success !== true || payload.code !== '000000' || !Array.isArray(payload.data?.items)) throw new Error('INVALID_BINANCE');
   const ads = [];
+  let qualityRejected = 0;
   for (const item of payload.data.items.slice(0, 20)) {
     if (item.fiat !== fiat || item.asset !== 'USDT') continue;
+    const merchantQuality = {completion: binanceRatio(item.advertiser?.monthFinishRate),
+      positive: binanceRatio(item.advertiser?.positiveRate), restricted: reportedRestriction(item)};
+    if (!passesMerchantPolicy(merchantQuality)) { qualityRejected++; continue; }
     const price = Number(item.price), minQty = Number(item.minTransAmount);
     const maxQty = Number(item.maxTransAmount), inventory = Number(item.tradableAmount);
     if (![item.price, item.minTransAmount, item.maxTransAmount, item.tradableAmount].every(value => value !== null && value !== undefined && value !== '')) continue;
@@ -187,18 +230,18 @@ function normalizeBinance(payload, fiat) {
     if (capacity < minQty) continue;
     ads.push({price, minQty, maxQty: capacity, adNo: String(item.adNo ?? ''),
       merchant: String(item.advertiser?.nickName ?? ''),
-      completion: Number(item.advertiser?.monthFinishRate) || 0,
+      ...merchantQuality,
       methods: Array.isArray(item.tradeMethods) ? item.tradeMethods.map(String) : []});
   }
-  return {ads, sampled: Math.min(20, payload.data.items.length)};
+  return {ads, sampled: Math.min(20, payload.data.items.length), qualityRejected, qualityPolicy: P2P_QUALITY_POLICY};
 }
 function readP2pEntry(rate) {
   const name = p2pKey(rate);
   if (p2pEntries.has(name)) return p2pEntries.get(name);
   try {
-    const entry = JSON.parse(stored(`tiendien_binance_v19_${name}`) || 'null');
-    if (entry && entry.fiat === rate.unit && entry.side === p2pSide(rate) && Number.isFinite(entry.fetchedAt) && entry.fetchedAt > 0 && entry.fetchedAt <= Date.now() + 5000 && Array.isArray(entry.ads) && Number.isFinite(entry.sampled)) {
-      const valid = entry.ads.every(ad => [ad.price, ad.minQty, ad.maxQty].every(Number.isFinite) && ad.price > 0 && ad.minQty >= 0 && ad.maxQty >= ad.minQty && Array.isArray(ad.methods));
+    const entry = JSON.parse(stored(`${P2P_CACHE_PREFIX}${name}`) || 'null');
+    if (entry && entry.qualityPolicy === P2P_QUALITY_POLICY && entry.fiat === rate.unit && entry.side === p2pSide(rate) && Number.isFinite(entry.fetchedAt) && entry.fetchedAt > 0 && entry.fetchedAt <= Date.now() + 5000 && Array.isArray(entry.ads) && Number.isInteger(entry.sampled) && entry.sampled >= 0 && entry.sampled <= 20 && Number.isInteger(entry.qualityRejected) && entry.qualityRejected >= 0 && entry.qualityRejected <= entry.sampled) {
+      const valid = entry.ads.every(ad => [ad.price, ad.minQty, ad.maxQty].every(Number.isFinite) && ad.price > 0 && ad.minQty >= 0 && ad.maxQty >= ad.minQty && Array.isArray(ad.methods) && passesMerchantPolicy(ad));
       if (valid) { p2pEntries.set(name, entry); return entry; }
     }
   } catch (_) {}
@@ -218,6 +261,7 @@ function selectP2p(rate, amountBefore) {
   // Every candidate must actually accommodate the selected USD amount.
   // Never reuse the old fixed $1,000 benchmark for a larger capital input.
   const candidates = entry.ads.filter(ad => {
+    if (!passesMerchantPolicy(ad)) return false;
     const targetQuantity = targetUsd * fiatPerUsd / ad.price;
     return targetQuantity + 1e-8 >= ad.minQty && targetQuantity <= ad.maxQty + 1e-8;
   });
@@ -228,7 +272,7 @@ function selectP2p(rate, amountBefore) {
   result.exact = exact;
   result.range = exact.length ? exact : candidates;
   result.range = [...result.range].sort((a, b) => a.price - b.price);
-  result.reason = !candidates.length ? 'empty' : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
+  result.reason = !candidates.length ? (entry.ads.length === 0 && entry.qualityRejected > 0 ? 'quality' : 'empty') : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
   if (result.range.length && !result.stale) {
     result.best = side === 'BUY' ? result.range[0] : result.range[result.range.length - 1];
     result.benchmark = exact.length === 0;
@@ -242,20 +286,21 @@ function renderP2pRow(rate, index, result) {
   if (!active) { line.textContent = ''; meta.textContent = ''; return; }
   const action = p2pSide(rate) === 'BUY' ? 'mua USDT' : 'bán USDT';
   const usdText = `$${fmt2.format(capitalUsd())}`;
-  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', amount: 'nhập vốn USD', empty: `chưa có quảng cáo khớp ${usdText}`, previous: 'chờ số tiền bước trước', capital: 'lượng tiền bước này khác vốn gốc', stale: 'giá cũ'};
+  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', amount: 'nhập vốn USD', empty: `chưa có quảng cáo khớp ${usdText}`, quality: 'chưa có thương nhân đạt bộ lọc', previous: 'chờ số tiền bước trước', capital: 'lượng tiền bước này khác vốn gốc', stale: 'giá cũ'};
+  const qualityNote = result.entry?.qualityRejected ? ` · loại ${result.entry.qualityRejected} QC theo bộ lọc thương nhân` : '';
   if (result.range.length) {
     const low = result.range[0].price, high = result.range[result.range.length - 1].price;
     line.textContent = `Binance ${action}: ${fmt4.format(low)}${high === low ? '' : `–${fmt4.format(high)}`}`;
     const time = new Intl.DateTimeFormat('vi-VN', {hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Ho_Chi_Minh'}).format(new Date(result.entry.fetchedAt));
     const note = result.stale ? ' · giá cũ' : result.reason !== 'ok' ? ` · ${messages[result.reason]}` : '';
-    meta.textContent = `${result.range.length}/${result.entry.sampled} QC · vốn ${usdText} · ${time}${note}${p2pErrors.has(p2pKey(rate)) ? ' · lỗi tải lại' : ''}`;
+    meta.textContent = `${result.range.length}/${result.entry.sampled} QC · vốn ${usdText} · ${time}${note}${qualityNote}${p2pErrors.has(p2pKey(rate)) ? ' · lỗi tải lại' : ''}`;
   } else {
     line.textContent = `Binance ${action}: ${messages[result.reason] || 'chưa có giá'}`;
-    meta.textContent = `Tìm theo vốn ${usdText} · mọi phương thức`;
+    meta.textContent = `Tìm theo vốn ${usdText} · mọi phương thức${qualityNote}`;
   }
   line.classList.toggle('stale', result.stale || p2pErrors.has(p2pKey(rate)));
   const selected = result.best;
-  line.setAttribute('title', selected ? `Giá ${selected.price} ${rate.unit}/USDT; ${selected.merchant}; hoàn tất ${fmt2.format(selected.completion * 100)}%; hạn mức khả dụng ${fmt4.format(selected.minQty)}–${fmt4.format(selected.maxQty)} USDT; thanh toán: ${selected.methods.join(', ')}. Quảng cáo đáp ứng vốn gốc ${usdText}. ${result.benchmark ? 'Lượng tiền thực ở bước này đã thay đổi sau quy đổi, cần kiểm tra lại hạn mức khi đặt lệnh. ' : ''}Mẫu tối đa 20 quảng cáo.` : 'Chỉ sử dụng quảng cáo đáp ứng mức USD đã chọn; không lấy giá của mức vốn khác.');
+  line.setAttribute('title', selected ? `Giá ${selected.price} ${rate.unit}/USDT; ${selected.merchant}; hoàn tất 30 ngày ${fmt2.format(selected.completion * 100)}%; phản hồi tích cực ${fmt2.format(selected.positive * 100)}%; hạn mức khả dụng ${fmt4.format(selected.minQty)}–${fmt4.format(selected.maxQty)} USDT; thanh toán: ${selected.methods.join(', ')}. Quảng cáo đáp ứng vốn gốc ${usdText}. ${result.benchmark ? 'Lượng tiền thực ở bước này đã thay đổi sau quy đổi, cần kiểm tra lại hạn mức khi đặt lệnh. ' : ''}Mẫu tối đa 20 quảng cáo; chưa xác minh hạn chế theo tài khoản Binance.` : 'Chỉ sử dụng quảng cáo đáp ứng vốn và bộ lọc thương nhân; chưa xác minh hạn chế theo tài khoản Binance.');
 }
 async function refreshBinance({force = false} = {}) {
   const rates = PAGES[page].rates.filter(isUsdtRate);
@@ -275,7 +320,7 @@ async function refreshBinance({force = false} = {}) {
         const normalized = normalizeBinance(await response.json(), rate.unit);
         const updated = {...normalized, fiat: rate.unit, side: p2pSide(rate), fetchedAt: Date.now()};
         p2pEntries.set(name, updated); p2pErrors.delete(name);
-        remember(`tiendien_binance_v19_${name}`, JSON.stringify(updated));
+        remember(`${P2P_CACHE_PREFIX}${name}`, JSON.stringify(updated));
       } catch (_) { p2pErrors.set(name, true); }
       finally { clearTimeout(timeout); }
     })();

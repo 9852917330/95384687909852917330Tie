@@ -9,11 +9,11 @@
   <meta name="theme-color" content="#090b0c">
   <meta name="color-scheme" content="dark">
   <title>Tiền của Điền</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=21">
+  <link rel="manifest" href="./manifest.webmanifest?v=23">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <style>
 :root{--bg:#090b0c;--panel:#121517;--field:#0c0f11;--line:#252b2f;--text:#f4f7f8;--muted:#899197;--accent:#00e68a;--bad:#ff6670;--warn:#f2c14e}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);overflow:auto}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}button,input{font:inherit}.app{height:100dvh;min-height:530px;max-width:620px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));display:grid;grid-template-rows:auto auto auto minmax(115px,1fr);gap:10px;background:radial-gradient(circle at 90% -10%,rgba(0,230,138,.12),transparent 36%)}header{display:flex;justify-content:space-between;align-items:center;gap:12px}.route{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--accent)}h1{margin:2px 0 0;font-size:27px;line-height:1;letter-spacing:-.045em}.version{display:inline-block;margin-top:5px;font-size:9px;font-weight:900;letter-spacing:.08em;color:var(--accent);opacity:.8}.install{border:1px solid var(--line);background:var(--panel);color:var(--accent);font-size:11px;font-weight:850;padding:8px 11px;border-radius:10px;cursor:pointer}.hidden{display:none!important}.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.tab{height:34px;border:1px solid var(--line);border-radius:10px;background:#101315;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.04em;cursor:pointer}.tab.active{color:#07110d;background:var(--accent);border-color:var(--accent)}.panel{border:1px solid var(--line);background:linear-gradient(180deg,#15191b,var(--panel));border-radius:17px;padding:12px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.inputs label.wide{grid-column:1/-1}.inputs label>span{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px;font-weight:780;color:#c7cdd0;margin:0 2px 5px}.inputs small{font-size:8px;color:var(--muted);font-weight:900;letter-spacing:.07em}.field{height:45px;display:flex;align-items:center;border:1px solid var(--line);background:var(--field);border-radius:12px;overflow:hidden}.field:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,230,138,.08)}.field.rate-highlight{background:linear-gradient(180deg,rgba(0,230,138,.18),rgba(0,230,138,.08));border-color:rgba(0,230,138,.62);box-shadow:inset 0 0 0 1px rgba(0,230,138,.06)}.field.rate-highlight input{color:#f7fffb}.field.rate-highlight b{color:var(--accent)}.field input{width:100%;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--text);padding:0 11px;font-size:16px;font-weight:800}.field input::placeholder{color:#535b60;font-size:12px;font-weight:650}.field b{font-size:9px;color:var(--muted);padding:0 10px}.received{display:block;margin:5px 3px 0;color:var(--muted);font-size:10px;line-height:1.15;font-style:normal;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.result-card{min-height:0;border:1px solid #284439;background:linear-gradient(180deg,#142119,#101613);border-radius:18px;padding:14px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.result-card span{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.12em}.result-card strong{font-size:clamp(30px,8vw,46px);line-height:1.03;margin:8px 0 4px;letter-spacing:-.055em}.result-card b{font-size:16px}.good{color:var(--accent)!important}.bad{color:var(--bad)!important}.neutral{color:var(--warn)!important}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);overflow:auto}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}button,input{font:inherit}.app{height:100dvh;min-height:530px;max-width:620px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));display:grid;grid-template-rows:auto auto auto minmax(115px,1fr);gap:10px;background:radial-gradient(circle at 90% -10%,rgba(0,230,138,.12),transparent 36%)}header{display:flex;justify-content:space-between;align-items:center;gap:12px}.route{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--accent)}h1{margin:2px 0 0;font-size:27px;line-height:1;letter-spacing:-.045em}.version{display:inline-block;margin-top:5px;font-size:9px;font-weight:900;letter-spacing:.08em;color:var(--accent);opacity:.8}.install{border:1px solid var(--line);background:var(--panel);color:var(--accent);font-size:11px;font-weight:850;padding:8px 11px;border-radius:10px;cursor:pointer}.hidden{display:none!important}.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.tab{height:34px;border:1px solid var(--line);border-radius:10px;background:#101315;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.04em;cursor:pointer}.tab.active{color:#07110d;background:var(--accent);border-color:var(--accent)}.panel{border:1px solid var(--line);background:linear-gradient(180deg,#15191b,var(--panel));border-radius:17px;padding:12px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.inputs label.wide{grid-column:1/-1}.inputs label>span{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px;font-weight:780;color:#c7cdd0;margin:0 2px 5px}.inputs small{font-size:8px;color:var(--muted);font-weight:900;letter-spacing:.07em}.field{height:45px;display:flex;align-items:center;border:1px solid var(--line);background:var(--field);border-radius:12px;overflow:hidden}.field:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,230,138,.08)}.field.rate-highlight{background:linear-gradient(180deg,rgba(0,230,138,.18),rgba(0,230,138,.08));border-color:rgba(0,230,138,.62);box-shadow:inset 0 0 0 1px rgba(0,230,138,.06)}.field.rate-highlight input{color:#f7fffb}.field.rate-highlight b{color:var(--accent)}.field input{width:100%;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--text);padding:0 11px;font-size:16px;font-weight:800}.field input::placeholder{color:#535b60;font-size:12px;font-weight:650}.field b{font-size:9px;color:var(--muted);padding:0 10px}.received{display:block;margin:5px 3px 0;color:var(--muted);font-size:10px;line-height:1.15;font-style:normal;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.result-card{min-height:0;border:1px solid #284439;background:linear-gradient(180deg,#142119,#101613);border-radius:18px;padding:14px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.result-card span{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.12em}.result-card strong{font-size:clamp(30px,8vw,46px);line-height:1.03;margin:8px 0 4px;letter-spacing:-.055em}.result-card b{font-size:16px}.good{color:var(--accent)!important}.bad{color:var(--bad)!important}.neutral{color:var(--warn)!important}
 @media(max-width:390px){.app{padding-left:10px;padding-right:10px;gap:8px}.panel{padding:10px}.inputs{gap:8px}.field{height:41px}.field input{font-size:14px}h1{font-size:23px}.received{font-size:9px;margin-top:4px}.result-card{padding:11px}.result-card strong{font-size:29px}.tab{height:31px;font-size:11px}}
 @media(max-height:690px){.app{gap:7px;padding-top:7px;padding-bottom:7px}.route{font-size:9px}h1{font-size:20px}.tabs{gap:5px}.tab{height:28px;font-size:10px}.panel{padding:8px}.inputs{gap:6px}.inputs label>span{font-size:9px;margin-bottom:3px}.field{height:33px}.field input{font-size:13px}.received{font-size:8px;margin-top:3px}.result-card{padding:8px}.result-card strong{font-size:26px;margin:4px 0 2px}}
 .fx-tools{grid-column:1/-1;border-top:1px solid var(--line);padding-top:9px;min-width:0}
@@ -52,17 +52,18 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
     <header>
       <div>
         <div class="route" id="routeText">VND → USDT → EUR → VND</div>
-        <h1>Tiền của Điền</h1><span class="version">v21 · VỐN USD + GIÁ THEO VỐN</span>
+        <h1>Tiền của Điền</h1><span class="version">v23 · BỘ LỌC THƯƠNG NHÂN</span>
       </div>
       <button id="installBtn" class="install hidden">Cài app</button>
     </header>
 
     <nav class="tabs" aria-label="Loại vòng tiền">
-      <button type="button" class="tab" data-page="cad">CAD</button>
-      <button type="button" class="tab" data-page="try">TRY</button>
       <button type="button" class="tab active" data-page="vnd">VND</button>
-      <button type="button" class="tab" data-page="jpy">JPY</button>
+      <button type="button" class="tab" data-page="try">TRY</button>
+      <button type="button" class="tab" data-page="czk">CZK</button>
       <button type="button" class="tab" data-page="rub">RUB</button>
+      <button type="button" class="tab" data-page="cad">CAD</button>
+      <button type="button" class="tab" data-page="jpy">JPY</button>
     </nav>
 
     <section class="panel inputs">
@@ -116,6 +117,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
         </div>
         <p id="fxStatus" role="status" aria-live="polite">Đang lấy tỷ giá pháp định…</p>
         <p id="p2pStatus" role="status" aria-live="polite">Binance · tìm theo vốn USD · đang tải…</p>
+        <p id="p2pPolicy">Bộ lọc: hoàn tất 30 ngày ≥85% · phản hồi tích cực ≥97%. Loại hạn chế khi nguồn báo; hạn chế theo tài khoản cần kiểm tra trên Binance.</p>
         <p><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">Rates By Exchange Rate API</a> · Tham khảo, cập nhật hằng ngày.</p>
       </div>
     </section>
@@ -151,12 +153,12 @@ function remember(name, value) {
 // Explicit fiat pairs use fx; USDT quotes come separately from Binance ads.
 // The legacy RUB USD/USDT convention remains disclosed on screen.
 const PAGES = {
-  cad: {
-    route: 'CAD → EUR → USDT → CAD', capital: 'CAD', highlight: 0,
+  vnd: {
+    route: 'VND → USDT → EUR → VND', capital: 'VND', highlight: 1,
     rates: [
-      {label: 'EUR / CAD', unit: 'CAD', placeholder: 'Ví dụ 1,5500', receive: 'EUR', op: 'divide', fx: ['EUR', 'CAD']},
-      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
-      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'}
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'USDT', op: 'divide', vndThousands: true},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8600', receive: 'EUR', op: 'multiply'},
+      {label: 'EUR / VND', unit: 'VND', placeholder: 'Ví dụ 30.700', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['EUR', 'VND']}
     ]
   },
   try: {
@@ -167,20 +169,12 @@ const PAGES = {
       {label: 'USDT / TRY', tag: 'P2P', unit: 'TRY', placeholder: 'Ví dụ 41,50', receive: 'TRY', op: 'multiply'}
     ]
   },
-  vnd: {
-    route: 'VND → USDT → EUR → VND', capital: 'VND', highlight: 1,
+  czk: {
+    route: 'CZK → EUR → USDT → CZK', capital: 'CZK', highlight: 0,
     rates: [
-      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'USDT', op: 'divide', vndThousands: true},
-      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8600', receive: 'EUR', op: 'multiply'},
-      {label: 'EUR / VND', unit: 'VND', placeholder: 'Ví dụ 30.700', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['EUR', 'VND']}
-    ]
-  },
-  jpy: {
-    route: 'VND → JPY → USDT → VND', capital: 'VND', highlight: 2,
-    rates: [
-      {label: 'JPY / VND', unit: 'VND', placeholder: 'Ví dụ 165,50', receive: 'JPY', op: 'divide', fx: ['JPY', 'VND']},
-      {label: 'USDT / JPY', tag: 'P2P', unit: 'JPY', placeholder: 'Ví dụ 155,00', receive: 'USDT', op: 'divide'},
-      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
+      {label: 'EUR / CZK', unit: 'CZK', placeholder: 'Ví dụ 25,00', receive: 'EUR', op: 'divide', fx: ['EUR', 'CZK']},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / CZK', tag: 'P2P', unit: 'CZK', placeholder: 'Ví dụ 22,50', receive: 'CZK', op: 'multiply'}
     ]
   },
   rub: {
@@ -188,6 +182,22 @@ const PAGES = {
     rates: [
       {label: 'RUB / VND', unit: 'VND', placeholder: 'Ví dụ 310,50', receive: 'RUB', op: 'divide', fx: ['RUB', 'VND']},
       {label: 'USD / RUB', unit: 'RUB', placeholder: 'Ví dụ 83,50', receive: 'USDT', op: 'divide', fx: ['USD', 'RUB']},
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
+    ]
+  },
+  cad: {
+    route: 'CAD → EUR → USDT → CAD', capital: 'CAD', highlight: 0,
+    rates: [
+      {label: 'EUR / CAD', unit: 'CAD', placeholder: 'Ví dụ 1,5500', receive: 'EUR', op: 'divide', fx: ['EUR', 'CAD']},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'}
+    ]
+  },
+  jpy: {
+    route: 'VND → JPY → USDT → VND', capital: 'VND', highlight: 2,
+    rates: [
+      {label: 'JPY / VND', unit: 'VND', placeholder: 'Ví dụ 165,50', receive: 'JPY', op: 'divide', fx: ['JPY', 'VND']},
+      {label: 'USDT / JPY', tag: 'P2P', unit: 'JPY', placeholder: 'Ví dụ 155,00', receive: 'USDT', op: 'divide'},
       {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
     ]
   }
@@ -245,7 +255,7 @@ function rateNum(value, thousands = false) {
 function formatCapital() {
   if ($('capital').value.trim()) $('capital').value = fmt2.format(capitalUsd());
 }
-function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'CAD' ? fmt2 : fmt0).format(Math.abs(value))} ${unit}`; }
+function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'CAD' || unit === 'CZK' ? fmt2 : fmt0).format(Math.abs(value))} ${unit}`; }
 function pct(value) { return `${value >= 0 ? '+' : ''}${fmt2.format(value)}%`; }
 function tone(element, value) {
   element.classList.remove('good', 'bad', 'neutral');
@@ -270,7 +280,7 @@ const FX_URL = 'https://open.er-api.com/v6/latest/USD';
 const FX_CACHE_KEY = 'tiendien_fx_usd_v16';
 const FX_AUTO_KEY = 'tiendien_fx_auto_v16';
 const FX_ATTEMPT_KEY = 'tiendien_fx_attempt_v16';
-const FX_CODES = ['USD', 'EUR', 'CAD', 'TRY', 'JPY', 'VND', 'RUB'];
+const FX_CODES = ['USD', 'EUR', 'VND', 'TRY', 'CZK', 'RUB', 'CAD', 'JPY'];
 let fxEnabled = stored(FX_AUTO_KEY) !== '0';
 let fxError = '';
 let fxBusy = false;
@@ -300,6 +310,12 @@ function readFxCache() {
 let fxSnapshot = readFxCache();
 const P2P_REFRESH_MS = 60000;
 const P2P_MAX_AGE_MS = 120000;
+const P2P_MIN_COMPLETION = 0.85;
+const P2P_MIN_POSITIVE = 0.97;
+const P2P_QUALITY_POLICY = 1;
+// Old snapshots lack feedback/restriction fields. Fetch fresh data instead of
+// reusing prices whose merchants were never checked against this policy.
+const P2P_CACHE_PREFIX = 'tiendien_binance_v23_';
 const p2pEntries = new Map();
 const p2pPending = new Map();
 const p2pErrors = new Map();
@@ -307,11 +323,40 @@ const p2pAttempts = new Map();
 function isUsdtRate(rate) { return /^USDT\s*\/\s*[A-Z]{3}$/.test(rate.label); }
 function p2pSide(rate) { return rate.receive === 'USDT' ? 'BUY' : 'SELL'; }
 function p2pKey(rate) { return `${rate.unit}_${p2pSide(rate)}`; }
+function binanceRatio(value) {
+  if (typeof value !== 'number' && typeof value !== 'string') return null;
+  if (typeof value === 'string' && !value.trim()) return null;
+  const ratio = Number(value);
+  return Number.isFinite(ratio) && ratio >= 0 && ratio <= 1 ? ratio : null;
+}
+function binanceFlag(value) {
+  if (value === true || value === 1 || value === '1' || value === 'true') return true;
+  if (value === false || value === 0 || value === '0' || value === 'false') return false;
+  return null;
+}
+function reportedRestriction(item) {
+  // Honor explicit restriction/block/tradability flags when supplied. The
+  // anonymous Agent feed currently omits them; absence cannot establish
+  // whether this particular Binance account is eligible to trade an ad.
+  return [item, item.advertiser, item.adv].some(source => source && (
+    binanceFlag(source.isRestricted) === true || binanceFlag(source.isBlocked) === true ||
+    binanceFlag(source.isTradable) === false
+  ));
+}
+function passesMerchantPolicy(ad) {
+  return ad.restricted === false &&
+    Number.isFinite(ad.completion) && ad.completion >= P2P_MIN_COMPLETION && ad.completion <= 1 &&
+    Number.isFinite(ad.positive) && ad.positive >= P2P_MIN_POSITIVE && ad.positive <= 1;
+}
 function normalizeBinance(payload, fiat) {
   if (!payload || payload.success !== true || payload.code !== '000000' || !Array.isArray(payload.data?.items)) throw new Error('INVALID_BINANCE');
   const ads = [];
+  let qualityRejected = 0;
   for (const item of payload.data.items.slice(0, 20)) {
     if (item.fiat !== fiat || item.asset !== 'USDT') continue;
+    const merchantQuality = {completion: binanceRatio(item.advertiser?.monthFinishRate),
+      positive: binanceRatio(item.advertiser?.positiveRate), restricted: reportedRestriction(item)};
+    if (!passesMerchantPolicy(merchantQuality)) { qualityRejected++; continue; }
     const price = Number(item.price), minQty = Number(item.minTransAmount);
     const maxQty = Number(item.maxTransAmount), inventory = Number(item.tradableAmount);
     if (![item.price, item.minTransAmount, item.maxTransAmount, item.tradableAmount].every(value => value !== null && value !== undefined && value !== '')) continue;
@@ -320,18 +365,18 @@ function normalizeBinance(payload, fiat) {
     if (capacity < minQty) continue;
     ads.push({price, minQty, maxQty: capacity, adNo: String(item.adNo ?? ''),
       merchant: String(item.advertiser?.nickName ?? ''),
-      completion: Number(item.advertiser?.monthFinishRate) || 0,
+      ...merchantQuality,
       methods: Array.isArray(item.tradeMethods) ? item.tradeMethods.map(String) : []});
   }
-  return {ads, sampled: Math.min(20, payload.data.items.length)};
+  return {ads, sampled: Math.min(20, payload.data.items.length), qualityRejected, qualityPolicy: P2P_QUALITY_POLICY};
 }
 function readP2pEntry(rate) {
   const name = p2pKey(rate);
   if (p2pEntries.has(name)) return p2pEntries.get(name);
   try {
-    const entry = JSON.parse(stored(`tiendien_binance_v19_${name}`) || 'null');
-    if (entry && entry.fiat === rate.unit && entry.side === p2pSide(rate) && Number.isFinite(entry.fetchedAt) && entry.fetchedAt > 0 && entry.fetchedAt <= Date.now() + 5000 && Array.isArray(entry.ads) && Number.isFinite(entry.sampled)) {
-      const valid = entry.ads.every(ad => [ad.price, ad.minQty, ad.maxQty].every(Number.isFinite) && ad.price > 0 && ad.minQty >= 0 && ad.maxQty >= ad.minQty && Array.isArray(ad.methods));
+    const entry = JSON.parse(stored(`${P2P_CACHE_PREFIX}${name}`) || 'null');
+    if (entry && entry.qualityPolicy === P2P_QUALITY_POLICY && entry.fiat === rate.unit && entry.side === p2pSide(rate) && Number.isFinite(entry.fetchedAt) && entry.fetchedAt > 0 && entry.fetchedAt <= Date.now() + 5000 && Array.isArray(entry.ads) && Number.isInteger(entry.sampled) && entry.sampled >= 0 && entry.sampled <= 20 && Number.isInteger(entry.qualityRejected) && entry.qualityRejected >= 0 && entry.qualityRejected <= entry.sampled) {
+      const valid = entry.ads.every(ad => [ad.price, ad.minQty, ad.maxQty].every(Number.isFinite) && ad.price > 0 && ad.minQty >= 0 && ad.maxQty >= ad.minQty && Array.isArray(ad.methods) && passesMerchantPolicy(ad));
       if (valid) { p2pEntries.set(name, entry); return entry; }
     }
   } catch (_) {}
@@ -351,6 +396,7 @@ function selectP2p(rate, amountBefore) {
   // Every candidate must actually accommodate the selected USD amount.
   // Never reuse the old fixed $1,000 benchmark for a larger capital input.
   const candidates = entry.ads.filter(ad => {
+    if (!passesMerchantPolicy(ad)) return false;
     const targetQuantity = targetUsd * fiatPerUsd / ad.price;
     return targetQuantity + 1e-8 >= ad.minQty && targetQuantity <= ad.maxQty + 1e-8;
   });
@@ -361,7 +407,7 @@ function selectP2p(rate, amountBefore) {
   result.exact = exact;
   result.range = exact.length ? exact : candidates;
   result.range = [...result.range].sort((a, b) => a.price - b.price);
-  result.reason = !candidates.length ? 'empty' : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
+  result.reason = !candidates.length ? (entry.ads.length === 0 && entry.qualityRejected > 0 ? 'quality' : 'empty') : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
   if (result.range.length && !result.stale) {
     result.best = side === 'BUY' ? result.range[0] : result.range[result.range.length - 1];
     result.benchmark = exact.length === 0;
@@ -375,20 +421,21 @@ function renderP2pRow(rate, index, result) {
   if (!active) { line.textContent = ''; meta.textContent = ''; return; }
   const action = p2pSide(rate) === 'BUY' ? 'mua USDT' : 'bán USDT';
   const usdText = `$${fmt2.format(capitalUsd())}`;
-  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', amount: 'nhập vốn USD', empty: `chưa có quảng cáo khớp ${usdText}`, previous: 'chờ số tiền bước trước', capital: 'lượng tiền bước này khác vốn gốc', stale: 'giá cũ'};
+  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', amount: 'nhập vốn USD', empty: `chưa có quảng cáo khớp ${usdText}`, quality: 'chưa có thương nhân đạt bộ lọc', previous: 'chờ số tiền bước trước', capital: 'lượng tiền bước này khác vốn gốc', stale: 'giá cũ'};
+  const qualityNote = result.entry?.qualityRejected ? ` · loại ${result.entry.qualityRejected} QC theo bộ lọc thương nhân` : '';
   if (result.range.length) {
     const low = result.range[0].price, high = result.range[result.range.length - 1].price;
     line.textContent = `Binance ${action}: ${fmt4.format(low)}${high === low ? '' : `–${fmt4.format(high)}`}`;
     const time = new Intl.DateTimeFormat('vi-VN', {hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Ho_Chi_Minh'}).format(new Date(result.entry.fetchedAt));
     const note = result.stale ? ' · giá cũ' : result.reason !== 'ok' ? ` · ${messages[result.reason]}` : '';
-    meta.textContent = `${result.range.length}/${result.entry.sampled} QC · vốn ${usdText} · ${time}${note}${p2pErrors.has(p2pKey(rate)) ? ' · lỗi tải lại' : ''}`;
+    meta.textContent = `${result.range.length}/${result.entry.sampled} QC · vốn ${usdText} · ${time}${note}${qualityNote}${p2pErrors.has(p2pKey(rate)) ? ' · lỗi tải lại' : ''}`;
   } else {
     line.textContent = `Binance ${action}: ${messages[result.reason] || 'chưa có giá'}`;
-    meta.textContent = `Tìm theo vốn ${usdText} · mọi phương thức`;
+    meta.textContent = `Tìm theo vốn ${usdText} · mọi phương thức${qualityNote}`;
   }
   line.classList.toggle('stale', result.stale || p2pErrors.has(p2pKey(rate)));
   const selected = result.best;
-  line.setAttribute('title', selected ? `Giá ${selected.price} ${rate.unit}/USDT; ${selected.merchant}; hoàn tất ${fmt2.format(selected.completion * 100)}%; hạn mức khả dụng ${fmt4.format(selected.minQty)}–${fmt4.format(selected.maxQty)} USDT; thanh toán: ${selected.methods.join(', ')}. Quảng cáo đáp ứng vốn gốc ${usdText}. ${result.benchmark ? 'Lượng tiền thực ở bước này đã thay đổi sau quy đổi, cần kiểm tra lại hạn mức khi đặt lệnh. ' : ''}Mẫu tối đa 20 quảng cáo.` : 'Chỉ sử dụng quảng cáo đáp ứng mức USD đã chọn; không lấy giá của mức vốn khác.');
+  line.setAttribute('title', selected ? `Giá ${selected.price} ${rate.unit}/USDT; ${selected.merchant}; hoàn tất 30 ngày ${fmt2.format(selected.completion * 100)}%; phản hồi tích cực ${fmt2.format(selected.positive * 100)}%; hạn mức khả dụng ${fmt4.format(selected.minQty)}–${fmt4.format(selected.maxQty)} USDT; thanh toán: ${selected.methods.join(', ')}. Quảng cáo đáp ứng vốn gốc ${usdText}. ${result.benchmark ? 'Lượng tiền thực ở bước này đã thay đổi sau quy đổi, cần kiểm tra lại hạn mức khi đặt lệnh. ' : ''}Mẫu tối đa 20 quảng cáo; chưa xác minh hạn chế theo tài khoản Binance.` : 'Chỉ sử dụng quảng cáo đáp ứng vốn và bộ lọc thương nhân; chưa xác minh hạn chế theo tài khoản Binance.');
 }
 async function refreshBinance({force = false} = {}) {
   const rates = PAGES[page].rates.filter(isUsdtRate);
@@ -408,7 +455,7 @@ async function refreshBinance({force = false} = {}) {
         const normalized = normalizeBinance(await response.json(), rate.unit);
         const updated = {...normalized, fiat: rate.unit, side: p2pSide(rate), fetchedAt: Date.now()};
         p2pEntries.set(name, updated); p2pErrors.delete(name);
-        remember(`tiendien_binance_v19_${name}`, JSON.stringify(updated));
+        remember(`${P2P_CACHE_PREFIX}${name}`, JSON.stringify(updated));
       } catch (_) { p2pErrors.set(name, true); }
       finally { clearTimeout(timeout); }
     })();

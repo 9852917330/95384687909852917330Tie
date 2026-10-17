@@ -19,11 +19,11 @@ function remember(name, value) {
 // inferred from the provider's USD rate, except the disclosed RUB convention.
 const PAGES = {
   cad: {
-    route: 'VND → USDT → CAD → VND', capital: 'VND', highlight: 0,
+    route: 'CAD → EUR → USDT → CAD', capital: 'CAD', highlight: 0,
     rates: [
-      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'USDT', op: 'divide', vndThousands: true},
-      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'},
-      {label: 'CAD / VND', unit: 'VND', placeholder: 'Ví dụ 19.000', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['CAD', 'VND']}
+      {label: 'EUR / CAD', unit: 'CAD', placeholder: 'Ví dụ 1,5500', receive: 'EUR', op: 'divide', fx: ['EUR', 'CAD']},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'}
     ]
   },
   try: {
@@ -69,6 +69,13 @@ function migrateVndTab() {
   }
 }
 migrateVndTab();
+// CAD now has a different starting currency and different quote positions.
+// Keep its new inputs separate so VND capital / unrelated old quotes cannot
+// acquire a new currency label. Only the unchanged USDT/CAD quote migrates.
+const oldUsdtCad = stored('tiendien_cad_rate2');
+if (stored('tiendien_cad_eur_usdt_rate3') === null && oldUsdtCad !== null) {
+  remember('tiendien_cad_eur_usdt_rate3', oldUsdtCad);
+}
 let page = stored('tiendien_page');
 if (page === 'eur' || !PAGES[page]) page = 'vnd';
 
@@ -88,7 +95,7 @@ function formatCapital() {
   const digits = $('capital').value.replace(/\D/g, '');
   $('capital').value = digits ? fmt0.format(capitalNum(digits)) : '';
 }
-function money(value, unit) { return `${value >= 0 ? '+' : '−'}${fmt0.format(Math.abs(value))} ${unit}`; }
+function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'CAD' ? fmt2 : fmt0).format(Math.abs(value))} ${unit}`; }
 function pct(value) { return `${value >= 0 ? '+' : ''}${fmt2.format(value)}%`; }
 function tone(element, value) {
   element.classList.remove('good', 'bad', 'neutral');
@@ -98,7 +105,7 @@ function formatReceived(value, unit) {
   if (!(value > 0 && Number.isFinite(value))) return `Nhận: — ${unit}`;
   return `Nhận: ${(unit === 'VND' || unit === 'TRY' ? fmt2 : fmt4).format(value)} ${unit}`;
 }
-function key(name) { return `tiendien_${page}_${name}`; }
+function key(name) { return `tiendien_${page === 'cad' ? 'cad_eur_usdt' : page}_${name}`; }
 function save() {
   remember(key('capital'), $('capital').value);
   PAGES[page].rates.forEach((rate, index) => {
@@ -224,7 +231,7 @@ async function refreshFx({force = false} = {}) {
 }
 
 function restorePage() {
-  $('capital').value = stored(key('capital')) ?? (page === 'try' ? '100.000' : '100.000.000');
+  $('capital').value = stored(key('capital')) ?? (page === 'cad' ? '10.000' : page === 'try' ? '100.000' : '100.000.000');
   ['rate1', 'rate2', 'rate3'].forEach(id => {
     $(id).value = stored(key(id)) ?? '';
     delete $(id).dataset.fxSource;

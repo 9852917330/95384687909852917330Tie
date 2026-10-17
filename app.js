@@ -17,6 +17,17 @@ function remember(name, value) {
 // A/B always means the amount of B for ONE unit of A.
 // Explicit fiat pairs use fx; USDT quotes come separately from Binance ads.
 // The legacy RUB USD/USDT convention remains disclosed on screen.
+const EURO_FIATS = ['TRY', 'CZK', 'DKK', 'PLN', 'HUF', 'RON', 'SEK', 'GBP', 'NOK', 'CHF', 'ISK', 'CAD'];
+function euroPage(currency) {
+  return {
+    route: `${currency} → EUR → USDT → ${currency}`, capital: currency, highlight: currency === 'TRY' ? 3 : 0,
+    rates: [
+      {label: `EUR / ${currency}`, unit: currency, placeholder: `Nhập tỷ giá EUR/${currency}`, receive: 'EUR', op: 'divide', fx: ['EUR', currency]},
+      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
+      {label: `USDT / ${currency}`, tag: 'P2P', unit: currency, placeholder: 'Nhập giá P2P', receive: currency, op: 'multiply'}
+    ]
+  };
+}
 const PAGES = {
   vnd: {
     route: 'VND → USDT → EUR → VND', capital: 'VND', highlight: 1,
@@ -26,36 +37,13 @@ const PAGES = {
       {label: 'EUR / VND', unit: 'VND', placeholder: 'Ví dụ 30.700', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['EUR', 'VND']}
     ]
   },
-  try: {
-    route: 'TRY → EUR → USDT → TRY', capital: 'TRY', highlight: 3,
-    rates: [
-      {label: 'EUR / TRY', unit: 'TRY', placeholder: 'Ví dụ 48,50', receive: 'EUR', op: 'divide', fx: ['EUR', 'TRY']},
-      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8550', receive: 'USDT', op: 'divide'},
-      {label: 'USDT / TRY', tag: 'P2P', unit: 'TRY', placeholder: 'Ví dụ 41,50', receive: 'TRY', op: 'multiply'}
-    ]
-  },
-  czk: {
-    route: 'CZK → EUR → USDT → CZK', capital: 'CZK', highlight: 0,
-    rates: [
-      {label: 'EUR / CZK', unit: 'CZK', placeholder: 'Ví dụ 25,00', receive: 'EUR', op: 'divide', fx: ['EUR', 'CZK']},
-      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
-      {label: 'USDT / CZK', tag: 'P2P', unit: 'CZK', placeholder: 'Ví dụ 22,50', receive: 'CZK', op: 'multiply'}
-    ]
-  },
+  ...Object.fromEntries(EURO_FIATS.map(currency => [currency.toLowerCase(), euroPage(currency)])),
   rub: {
     route: 'VND → RUB → USDT → VND', capital: 'VND', highlight: 3,
     rates: [
       {label: 'RUB / VND', unit: 'VND', placeholder: 'Ví dụ 310,50', receive: 'RUB', op: 'divide', fx: ['RUB', 'VND']},
       {label: 'USD / RUB', unit: 'RUB', placeholder: 'Ví dụ 83,50', receive: 'USDT', op: 'divide', fx: ['USD', 'RUB']},
       {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
-    ]
-  },
-  cad: {
-    route: 'CAD → EUR → USDT → CAD', capital: 'CAD', highlight: 0,
-    rates: [
-      {label: 'EUR / CAD', unit: 'CAD', placeholder: 'Ví dụ 1,5500', receive: 'EUR', op: 'divide', fx: ['EUR', 'CAD']},
-      {label: 'USDT / EUR', tag: 'P2P', unit: 'EUR', placeholder: 'Ví dụ 0,8900', receive: 'USDT', op: 'divide'},
-      {label: 'USDT / CAD', tag: 'P2P', unit: 'CAD', placeholder: 'Ví dụ 1,3900', receive: 'CAD', op: 'multiply'}
     ]
   },
   jpy: {
@@ -120,7 +108,7 @@ function rateNum(value, thousands = false) {
 function formatCapital() {
   if ($('capital').value.trim()) $('capital').value = fmt2.format(capitalUsd());
 }
-function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'CAD' || unit === 'CZK' ? fmt2 : fmt0).format(Math.abs(value))} ${unit}`; }
+function money(value, unit) { return `${value >= 0 ? '+' : '−'}${(unit === 'VND' ? fmt0 : fmt2).format(Math.abs(value))} ${unit}`; }
 function pct(value) { return `${value >= 0 ? '+' : ''}${fmt2.format(value)}%`; }
 function tone(element, value) {
   element.classList.remove('good', 'bad', 'neutral');
@@ -145,7 +133,7 @@ const FX_URL = 'https://open.er-api.com/v6/latest/USD';
 const FX_CACHE_KEY = 'tiendien_fx_usd_v16';
 const FX_AUTO_KEY = 'tiendien_fx_auto_v16';
 const FX_ATTEMPT_KEY = 'tiendien_fx_attempt_v16';
-const FX_CODES = ['USD', 'EUR', 'VND', 'TRY', 'CZK', 'RUB', 'CAD', 'JPY'];
+const FX_CODES = ['USD', 'EUR', 'VND', ...EURO_FIATS, 'RUB', 'JPY'];
 let fxEnabled = stored(FX_AUTO_KEY) !== '0';
 let fxError = '';
 let fxBusy = false;
@@ -272,7 +260,7 @@ function selectP2p(rate, amountBefore) {
   result.exact = exact;
   result.range = exact.length ? exact : candidates;
   result.range = [...result.range].sort((a, b) => a.price - b.price);
-  result.reason = !candidates.length ? (entry.ads.length === 0 && entry.qualityRejected > 0 ? 'quality' : 'empty') : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
+  result.reason = !candidates.length ? (entry.sampled === 0 ? 'market' : entry.ads.length === 0 && entry.qualityRejected > 0 ? 'quality' : 'empty') : !amountBefore ? 'previous' : !exact.length ? 'capital' : result.stale ? 'stale' : 'ok';
   if (result.range.length && !result.stale) {
     result.best = side === 'BUY' ? result.range[0] : result.range[result.range.length - 1];
     result.benchmark = exact.length === 0;
@@ -286,7 +274,7 @@ function renderP2pRow(rate, index, result) {
   if (!active) { line.textContent = ''; meta.textContent = ''; return; }
   const action = p2pSide(rate) === 'BUY' ? 'mua USDT' : 'bán USDT';
   const usdText = `$${fmt2.format(capitalUsd())}`;
-  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', amount: 'nhập vốn USD', empty: `chưa có quảng cáo khớp ${usdText}`, quality: 'chưa có thương nhân đạt bộ lọc', previous: 'chờ số tiền bước trước', capital: 'lượng tiền bước này khác vốn gốc', stale: 'giá cũ'};
+  const messages = {loading: 'đang tải…', error: 'chưa tải được', fx: 'cần tỷ giá USD', amount: 'nhập vốn USD', market: 'nguồn chưa có quảng cáo cho cặp này', empty: `chưa có quảng cáo khớp ${usdText}`, quality: 'chưa có thương nhân đạt bộ lọc', previous: 'chờ số tiền bước trước', capital: 'lượng tiền bước này khác vốn gốc', stale: 'giá cũ'};
   const qualityNote = result.entry?.qualityRejected ? ` · loại ${result.entry.qualityRejected} QC theo bộ lọc thương nhân` : '';
   if (result.range.length) {
     const low = result.range[0].price, high = result.range[result.range.length - 1].price;

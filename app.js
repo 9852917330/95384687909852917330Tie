@@ -153,6 +153,34 @@ function crossRate(base, quote) {
   if (!fxSnapshot) return 0;
   return fxSnapshot.payload.rates[quote] / fxSnapshot.payload.rates[base];
 }
+function renderUsdReferences() {
+  // Benchmarks are read-only display data. Never substitute them for P2P
+  // USDT inputs or use them in the route's received/profit calculations.
+  PAGES[page].rates.forEach((rate, index) => {
+    const reference = $(`usdReference${index + 1}`);
+    const pair = rate.label.split('/').map(code => code.trim());
+    const hasUsdt = pair.includes('USDT');
+    reference.classList.toggle('hidden', !hasUsdt);
+    reference.classList.toggle('stale', hasUsdt && Boolean(fxSnapshot) && (fxIsDue() || Boolean(fxError)));
+    if (!hasUsdt) {
+      reference.textContent = '';
+      reference.setAttribute('title', '');
+      return;
+    }
+    const currency = pair.find(code => code !== 'USDT');
+    const label = `USD / ${currency}`;
+    if (fxSnapshot) {
+      const value = crossRate('USD', currency);
+      const qualifier = fxError ? ' · giá lưu' : fxIsDue() ? ' · giá cũ' : '';
+      reference.textContent = `${label}: ${fmt4.format(value)}${qualifier}`;
+      const timestamp = new Date(fxSnapshot.payload.time_last_update_unix * 1000).toLocaleString('vi-VN', {timeZone: 'Asia/Ho_Chi_Minh'});
+      reference.setAttribute('title', `1 USD = ${fmt4.format(value)} ${currency}. Tỷ giá tham khảo từ ExchangeRate-API, lúc ${timestamp} (giờ VN).`);
+    } else {
+      reference.textContent = `${label}: ${fxBusy ? 'đang tải…' : fxError ? 'chưa tải được' : '—'}`;
+      reference.setAttribute('title', 'Chưa có dữ liệu tỷ giá pháp định; không suy ra từ giá USDT nhập tay.');
+    }
+  });
+}
 function applyFxToPage() {
   if (!fxEnabled || !fxSnapshot) return;
   PAGES[page].rates.forEach((rate, index) => {
@@ -166,20 +194,19 @@ function applyFxToPage() {
 function renderFxStatus() {
   $('fxAuto').setAttribute('aria-checked', String(fxEnabled));
   $('fxAuto').classList.toggle('enabled', fxEnabled);
-  $('fxAutoText').textContent = `Tự động: ${fxEnabled ? 'Bật' : 'Tắt'}`;
-  $('fxRefresh').disabled = fxBusy || !fxEnabled;
+  $('fxAutoText').textContent = `Tự điền: ${fxEnabled ? 'Bật' : 'Tắt'}`;
+  $('fxRefresh').disabled = fxBusy;
   $('fxRefresh').textContent = fxBusy ? 'Đang tải…' : 'Cập nhật';
-  $('fxStatus').classList.toggle('fx-warning', Boolean(fxError) || (fxEnabled && fxIsDue() && Boolean(fxSnapshot)));
-  if (!fxEnabled) {
-    $('fxStatus').textContent = 'Nhập tỷ giá thủ công. Các giá có USDT luôn nhập tay.';
-  } else if (fxSnapshot) {
+  $('fxStatus').classList.toggle('fx-warning', Boolean(fxError) || (fxIsDue() && Boolean(fxSnapshot)));
+  const manualPrefix = fxEnabled ? '' : 'Ô giá nhập tay. ';
+  if (fxSnapshot) {
     const date = new Intl.DateTimeFormat('vi-VN', {dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh'}).format(new Date(fxSnapshot.payload.time_last_update_unix * 1000));
     const prefix = fxError ? `${fxError} · đang dùng giá lưu lúc ` : fxIsDue() ? 'Giá cũ từ ' : 'Tỷ giá lúc ';
-    $('fxStatus').textContent = `${prefix}${date} (giờ VN). USDT nhập tay.`;
+    $('fxStatus').textContent = `${manualPrefix}${prefix}${date} (giờ VN). USDT nhập tay.`;
   } else if (fxError) {
-    $('fxStatus').textContent = `${fxError}. Chưa có giá tự động; tắt Tự động để nhập tay.`;
+    $('fxStatus').textContent = `${manualPrefix}${fxError}. ${fxEnabled ? 'Tắt Tự điền để nhập tay.' : 'USD tham khảo chưa có dữ liệu.'}`;
   } else {
-    $('fxStatus').textContent = fxBusy ? 'Đang lấy tỷ giá pháp định… USDT nhập tay.' : 'Chưa có tỷ giá tự động. USDT nhập tay.';
+    $('fxStatus').textContent = manualPrefix + (fxBusy ? 'Đang lấy tỷ giá pháp định… USDT nhập tay.' : 'Chưa có tỷ giá tự động. USDT nhập tay.');
   }
   PAGES[page].rates.forEach((rate, index) => {
     const input = $(`rate${index + 1}`);
@@ -191,10 +218,11 @@ function renderFxStatus() {
     input.closest('.field').classList.toggle('auto-rate', automatic);
   });
   $('resultNote').textContent = fxEnabled ? 'Ước tính theo tỷ giá tham khảo · chưa trừ phí' : 'Ước tính · chưa trừ phí giao dịch';
+  renderUsdReferences();
 }
 
 async function refreshFx({force = false} = {}) {
-  if (!fxEnabled) return;
+  // The feed also powers USD reference lines while auto-fill is disabled.
   if (fxRequest) return fxRequest;
   if (!force && !fxIsDue()) { renderFxStatus(); return; }
   const elapsed = Date.now() - fxLastAttempt;

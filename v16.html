@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#090b0c">
   <meta name="color-scheme" content="dark">
   <title>Tiền của Điền</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=17">
+  <link rel="manifest" href="./manifest.webmanifest?v=18">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <style>
 :root{--bg:#090b0c;--panel:#121517;--field:#0c0f11;--line:#252b2f;--text:#f4f7f8;--muted:#899197;--accent:#00e68a;--bad:#ff6670;--warn:#f2c14e}
@@ -29,9 +29,11 @@
 .field.auto-rate{border-style:dashed}.field.auto-rate input{cursor:default}
 .rub-note{grid-column:1/-1;margin:0 2px;color:var(--warn);font-size:10px;line-height:1.35}
 .result-note{margin:8px 0 0;font-size:9px;line-height:1.4;color:var(--muted);font-weight:500;letter-spacing:0}
+.usd-reference{display:block;margin:4px 3px 0;font-size:10px;line-height:1.35;font-style:normal;font-weight:650;color:#73c6a3;overflow-wrap:anywhere}
+.usd-reference.stale{color:var(--warn)}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:390px){.tabs{gap:5px}.fx-toggle,.fx-refresh{font-size:10px;padding:5px 8px}}
-@media(max-height:690px){.fx-tools{padding-top:6px}.fx-tools p{font-size:8px;margin-top:3px}.fx-toggle,.fx-refresh{min-height:28px;font-size:10px}.rub-note{font-size:9px}.result-note{font-size:8px;margin-top:5px}}
+@media(max-height:690px){.fx-tools{padding-top:6px}.fx-tools p{font-size:8px;margin-top:3px}.fx-toggle,.fx-refresh{min-height:28px;font-size:10px}.rub-note{font-size:9px}.result-note{font-size:8px;margin-top:5px}.usd-reference{font-size:9px;margin-top:3px}}
 
 </style>
 </head>
@@ -40,7 +42,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
     <header>
       <div>
         <div class="route" id="routeText">VND → USDT → EUR → VND</div>
-        <h1>Tiền của Điền</h1><span class="version">v17 · CAD → EUR → USDT → CAD</span>
+        <h1>Tiền của Điền</h1><span class="version">v18 · TỶ GIÁ USD THAM KHẢO</span>
       </div>
       <button id="installBtn" class="install hidden">Cài app</button>
     </header>
@@ -63,24 +65,27 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
         <span id="rate1Label">USDT / VND <small>P2P</small></span>
         <div class="field"><input id="rate1" inputmode="decimal" placeholder="Ví dụ 26.300"><b id="rate1Unit">VND</b></div>
         <em class="received" id="received1">Nhận: — USDT</em>
+        <em class="usd-reference hidden" id="usdReference1" aria-live="polite"></em>
       </label>
 
       <label>
         <span id="rate2Label">USDT / EUR <small>P2P</small></span>
         <div class="field"><input id="rate2" inputmode="decimal" placeholder="Ví dụ 0,8600"><b id="rate2Unit">EUR</b></div>
         <em class="received" id="received2">Nhận: — EUR</em>
+        <em class="usd-reference hidden" id="usdReference2" aria-live="polite"></em>
       </label>
 
       <label class="wide">
         <span id="rate3Label">EUR / VND</span>
         <div class="field"><input id="rate3" inputmode="decimal" placeholder="Ví dụ 30.700"><b id="rate3Unit">VND</b></div>
         <em class="received" id="received3">Nhận: — VND</em>
+        <em class="usd-reference hidden" id="usdReference3" aria-live="polite"></em>
       </label>
 
       <p id="rubNote" class="rub-note hidden">Bước USD/RUB quy ước 1 USDT = 1 USD. Giá mua USDT thực tế có thể khác.</p>
       <div class="fx-tools">
         <div class="fx-controls">
-          <button type="button" id="fxAuto" class="fx-toggle enabled" role="switch" aria-checked="true" aria-label="Tự động cập nhật tỷ giá pháp định"><i class="fx-dot" aria-hidden="true"></i><span id="fxAutoText">Tự động: Bật</span></button>
+          <button type="button" id="fxAuto" class="fx-toggle enabled" role="switch" aria-checked="true" aria-label="Tự động điền các ô tỷ giá pháp định"><i class="fx-dot" aria-hidden="true"></i><span id="fxAutoText">Tự điền: Bật</span></button>
           <button type="button" id="fxRefresh" class="fx-refresh">Cập nhật</button>
         </div>
         <p id="fxStatus" role="status" aria-live="polite">Đang lấy tỷ giá pháp định…</p>
@@ -254,6 +259,34 @@ function crossRate(base, quote) {
   if (!fxSnapshot) return 0;
   return fxSnapshot.payload.rates[quote] / fxSnapshot.payload.rates[base];
 }
+function renderUsdReferences() {
+  // Benchmarks are read-only display data. Never substitute them for P2P
+  // USDT inputs or use them in the route's received/profit calculations.
+  PAGES[page].rates.forEach((rate, index) => {
+    const reference = $(`usdReference${index + 1}`);
+    const pair = rate.label.split('/').map(code => code.trim());
+    const hasUsdt = pair.includes('USDT');
+    reference.classList.toggle('hidden', !hasUsdt);
+    reference.classList.toggle('stale', hasUsdt && Boolean(fxSnapshot) && (fxIsDue() || Boolean(fxError)));
+    if (!hasUsdt) {
+      reference.textContent = '';
+      reference.setAttribute('title', '');
+      return;
+    }
+    const currency = pair.find(code => code !== 'USDT');
+    const label = `USD / ${currency}`;
+    if (fxSnapshot) {
+      const value = crossRate('USD', currency);
+      const qualifier = fxError ? ' · giá lưu' : fxIsDue() ? ' · giá cũ' : '';
+      reference.textContent = `${label}: ${fmt4.format(value)}${qualifier}`;
+      const timestamp = new Date(fxSnapshot.payload.time_last_update_unix * 1000).toLocaleString('vi-VN', {timeZone: 'Asia/Ho_Chi_Minh'});
+      reference.setAttribute('title', `1 USD = ${fmt4.format(value)} ${currency}. Tỷ giá tham khảo từ ExchangeRate-API, lúc ${timestamp} (giờ VN).`);
+    } else {
+      reference.textContent = `${label}: ${fxBusy ? 'đang tải…' : fxError ? 'chưa tải được' : '—'}`;
+      reference.setAttribute('title', 'Chưa có dữ liệu tỷ giá pháp định; không suy ra từ giá USDT nhập tay.');
+    }
+  });
+}
 function applyFxToPage() {
   if (!fxEnabled || !fxSnapshot) return;
   PAGES[page].rates.forEach((rate, index) => {
@@ -267,20 +300,19 @@ function applyFxToPage() {
 function renderFxStatus() {
   $('fxAuto').setAttribute('aria-checked', String(fxEnabled));
   $('fxAuto').classList.toggle('enabled', fxEnabled);
-  $('fxAutoText').textContent = `Tự động: ${fxEnabled ? 'Bật' : 'Tắt'}`;
-  $('fxRefresh').disabled = fxBusy || !fxEnabled;
+  $('fxAutoText').textContent = `Tự điền: ${fxEnabled ? 'Bật' : 'Tắt'}`;
+  $('fxRefresh').disabled = fxBusy;
   $('fxRefresh').textContent = fxBusy ? 'Đang tải…' : 'Cập nhật';
-  $('fxStatus').classList.toggle('fx-warning', Boolean(fxError) || (fxEnabled && fxIsDue() && Boolean(fxSnapshot)));
-  if (!fxEnabled) {
-    $('fxStatus').textContent = 'Nhập tỷ giá thủ công. Các giá có USDT luôn nhập tay.';
-  } else if (fxSnapshot) {
+  $('fxStatus').classList.toggle('fx-warning', Boolean(fxError) || (fxIsDue() && Boolean(fxSnapshot)));
+  const manualPrefix = fxEnabled ? '' : 'Ô giá nhập tay. ';
+  if (fxSnapshot) {
     const date = new Intl.DateTimeFormat('vi-VN', {dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh'}).format(new Date(fxSnapshot.payload.time_last_update_unix * 1000));
     const prefix = fxError ? `${fxError} · đang dùng giá lưu lúc ` : fxIsDue() ? 'Giá cũ từ ' : 'Tỷ giá lúc ';
-    $('fxStatus').textContent = `${prefix}${date} (giờ VN). USDT nhập tay.`;
+    $('fxStatus').textContent = `${manualPrefix}${prefix}${date} (giờ VN). USDT nhập tay.`;
   } else if (fxError) {
-    $('fxStatus').textContent = `${fxError}. Chưa có giá tự động; tắt Tự động để nhập tay.`;
+    $('fxStatus').textContent = `${manualPrefix}${fxError}. ${fxEnabled ? 'Tắt Tự điền để nhập tay.' : 'USD tham khảo chưa có dữ liệu.'}`;
   } else {
-    $('fxStatus').textContent = fxBusy ? 'Đang lấy tỷ giá pháp định… USDT nhập tay.' : 'Chưa có tỷ giá tự động. USDT nhập tay.';
+    $('fxStatus').textContent = manualPrefix + (fxBusy ? 'Đang lấy tỷ giá pháp định… USDT nhập tay.' : 'Chưa có tỷ giá tự động. USDT nhập tay.');
   }
   PAGES[page].rates.forEach((rate, index) => {
     const input = $(`rate${index + 1}`);
@@ -292,10 +324,11 @@ function renderFxStatus() {
     input.closest('.field').classList.toggle('auto-rate', automatic);
   });
   $('resultNote').textContent = fxEnabled ? 'Ước tính theo tỷ giá tham khảo · chưa trừ phí' : 'Ước tính · chưa trừ phí giao dịch';
+  renderUsdReferences();
 }
 
 async function refreshFx({force = false} = {}) {
-  if (!fxEnabled) return;
+  // The feed also powers USD reference lines while auto-fill is disabled.
   if (fxRequest) return fxRequest;
   if (!force && !fxIsDue()) { renderFxStatus(); return; }
   const elapsed = Date.now() - fxLastAttempt;

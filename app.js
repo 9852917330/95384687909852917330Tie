@@ -17,7 +17,7 @@ function remember(name, value) {
 // A/B always means the amount of B for ONE unit of A.
 // Explicit fiat pairs use fx; USDT quotes come separately from Binance ads.
 // The legacy RUB USD/USDT convention remains disclosed on screen.
-const EURO_FIATS = ['TRY', 'CZK', 'DKK', 'PLN', 'HUF', 'RON', 'SEK', 'GBP', 'NOK', 'CHF', 'ISK', 'CAD'];
+const EURO_FIATS = ['TRY', 'GBP', 'CAD', 'CZK'];
 function euroPage(currency) {
   return {
     route: `${currency} → EUR → USDT → ${currency}`, capital: currency, highlight: currency === 'TRY' ? 3 : 0,
@@ -37,7 +37,17 @@ const PAGES = {
       {label: 'EUR / VND', unit: 'VND', placeholder: 'Ví dụ 30.700', receive: 'VND', op: 'multiply', vndThousands: true, fx: ['EUR', 'VND']}
     ]
   },
-  ...Object.fromEntries(EURO_FIATS.map(currency => [currency.toLowerCase(), euroPage(currency)])),
+  try: euroPage('TRY'),
+  gbp: euroPage('GBP'),
+  cad: euroPage('CAD'),
+  jpy: {
+    route: 'VND → JPY → USDT → VND', capital: 'VND', highlight: 2,
+    rates: [
+      {label: 'JPY / VND', unit: 'VND', placeholder: 'Ví dụ 165,50', receive: 'JPY', op: 'divide', fx: ['JPY', 'VND']},
+      {label: 'USDT / JPY', tag: 'P2P', unit: 'JPY', placeholder: 'Ví dụ 155,00', receive: 'USDT', op: 'divide'},
+      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
+    ]
+  },
   rub: {
     route: 'VND → RUB → USDT → VND', capital: 'VND', highlight: 3,
     rates: [
@@ -46,14 +56,7 @@ const PAGES = {
       {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
     ]
   },
-  jpy: {
-    route: 'VND → JPY → USDT → VND', capital: 'VND', highlight: 2,
-    rates: [
-      {label: 'JPY / VND', unit: 'VND', placeholder: 'Ví dụ 165,50', receive: 'JPY', op: 'divide', fx: ['JPY', 'VND']},
-      {label: 'USDT / JPY', tag: 'P2P', unit: 'JPY', placeholder: 'Ví dụ 155,00', receive: 'USDT', op: 'divide'},
-      {label: 'USDT / VND', tag: 'P2P', unit: 'VND', placeholder: 'Ví dụ 26.300', receive: 'VND', op: 'multiply', vndThousands: true}
-    ]
-  }
+  czk: euroPage('CZK')
 };
 
 function migrateVndTab() {
